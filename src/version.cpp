@@ -1,5 +1,5 @@
 ﻿static char *version_id =
-	"@(#)Copyright (C) 2004-2019 H.Shirouzu and FastCopy Lab, LLC.	Version.cpp ver3.6.3.51"
+	"@(#)Copyright (C) 2004-2019 H.Shirouzu and FastCopy Lab, LLC.	Version.cpp ver3.7.0.0"
 #ifdef _DEBUG
 	"d"
 #endif
@@ -12,6 +12,7 @@
 	Copyright				: H.Shirouzu and FastCopy Lab, LLC.
 	License					: GNU General Public License version 3
 	Modify					: Mapaler 2017-03-06
+	Modify					: nzchris73 2022-08-22
 	======================================================================== */
 
 #include "tlib/tlib.h"
@@ -80,7 +81,7 @@ const char *GetLibCopyrightStr(void)
 const char *GetMenderStr(void)
 {
 	if (mender_str[0] == 0) {
-		sprintf(mender_str, "FastCopy-M branch By Mapaler");
+		sprintf(mender_str, "FastCopy-M branch By Mapaler\r\nUpdated by nzchris73");
 	}
 	return	mender_str;
 }
