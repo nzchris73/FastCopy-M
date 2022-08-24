@@ -33,7 +33,7 @@ License:
 	 more details: license-gpl3.txt
 	-------------------------------------------------------------------------
 
-	xxHash library Copyright (C) 2012-2016 Mr.Yann Collet, All rights reserved.
+	xxHash library Copyright (C) 2012-2022 Mr.Yann Collet, All rights reserved.
 	  more details: external/xxhash/LICENSE
 
 Usage：
