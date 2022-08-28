@@ -1,5 +1,5 @@
 ﻿static char *version_id =
-	"@(#)Copyright (C) 2004-2019 H.Shirouzu and FastCopy Lab, LLC.	Version.cpp ver3.7.0.0"
+	"@(#)Copyright (C) 2004-2019 H.Shirouzu and FastCopy Lab, LLC.	Version.cpp ver3.7.0.1"
 #ifdef _DEBUG
 	"d"
 #endif
@@ -81,7 +81,7 @@ const char *GetLibCopyrightStr(void)
 const char *GetMenderStr(void)
 {
 	if (mender_str[0] == 0) {
-		sprintf(mender_str, "FastCopy-M branch By Mapaler\r\nUpdated by nzchris73");
+		sprintf(mender_str, "FastCopy-M branch By Mapaler\r\nForked by nzchris73 :-)");
 	}
 	return	mender_str;
 }

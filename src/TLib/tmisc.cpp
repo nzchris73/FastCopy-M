@@ -23,9 +23,19 @@
 using namespace std;
 
 OSVERSIONINFOEX TOSVerInfo = []() {
-	OSVERSIONINFOEX	ovi = { sizeof(OSVERSIONINFO) };
-	::GetVersionEx((OSVERSIONINFO *)&ovi);
-	return	ovi;
+	/*OSVERSIONINFOEX	ovi = {sizeof(OSVERSIONINFO)};
+	::GetVersionEx((OSVERSIONINFO*)&ovi);
+	return	ovi; */
+
+	OSVERSIONINFOEX osvi = { 0 };
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	osvi.dwMajorVersion = 6;
+	osvi.dwMinorVersion = 3;
+	DWORDLONG dwlConditionMask = 0;
+	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
+	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
+	//return ::VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION, dwlConditionMask);
+	return osvi;
 }();
 
 HINSTANCE defaultStrInstance;
@@ -45,11 +55,11 @@ static LCID defaultLCID;
 #pragma comment (lib, "Netapi32.lib")
 
 /*=========================================================================
-  クラス ： Condition
-  概  要 ： 条件変数クラス
-  説  明 ： 
-  注  意 ： 
-=========================================================================*/
+Class : Condition
+  Overview: Condition variable class
+  explanation : 
+  Note :
+  =========================================================================*/
 Condition::Condition(void)
 {
 	static BOOL once = InitGlobalEvents();
@@ -94,8 +104,8 @@ void Condition::UnInitialize(void)
 
 BOOL Condition::Wait(DWORD timeout)
 {
-// 参考程度の空き開始位置調査
-// （正確な確認は、INIT_EVENT <-> WAIT_EVENT の CAS で）
+// Investigation of empty start position for reference
+// (exact check in CAS for INIT EVENT <-> WAIT EVENT)
 	u_int	idx = get_ntz(_InterlockedExchangeAdd(&gEventMap, 0));
 	u_int	self_bit = 0;
 	if (idx >= MaxThreads) idx = 0;
@@ -110,7 +120,7 @@ BOOL Condition::Wait(DWORD timeout)
 		if (++idx == MaxThreads) idx = 0;
 		count++;
 	}
-	if (count >= MaxThreads) {	// 通常はありえない
+	if (count >= MaxThreads) {	// usually not possible
 		MessageBox(0, "Detect too many wait threads", "TLib", MB_OK);
 		return	FALSE;
 	}
@@ -133,7 +143,7 @@ BOOL Condition::Wait(DWORD timeout)
 	return	status == WAIT_TIMEOUT ? FALSE : TRUE;
 }
 
-void Condition::Notify(void)	// 現状では、眠っているスレッド全員を起こす
+void Condition::Notify(void)	// currently wakes up all sleeping threads
 {
 	if (waitBits) {
 		u_int	bits = waitBits;
@@ -143,7 +153,7 @@ void Condition::Notify(void)	// 現状では、眠っているスレッド全員
 
 			if (event.kind == WAIT_EVENT) {
 				::SetEvent(event.hEvent);
-				event.kind = DONE_EVENT;	// INIT <-> WAIT間以外では CASは無用
+				event.kind = DONE_EVENT;	// CAS is useless except between INIT <-> WAIT
 			}
 			bits &= ~(1 << idx);
 		}
@@ -220,10 +230,10 @@ void Condition::Notify(void)	// 現状では、眠っているスレッド全員
 
 
 /*=========================================================================
-  クラス ： VBuf
-  概  要 ： 仮想メモリ管理クラス
-  説  明 ： 
-  注  意 ： 
+Class: VBuf
+  Overview: Virtual memory management class
+  explanation : 
+  Note :
 =========================================================================*/
 VBuf::VBuf(size_t _size, size_t _max_size)
 {
@@ -259,7 +269,7 @@ BOOL VBuf::AllocBuf(size_t _size, size_t _max_size)
 	}
 	maxSize = _max_size;
 
-// 1page 分だけ余計に確保（buffer over flow 検出用）
+// Secure 1 page extra (for buffer overflow detection)
 	if (!(buf = (BYTE *)::VirtualAlloc(NULL, maxSize + PAGE_SIZE, MEM_RESERVE, PAGE_READWRITE))) {
 		Init();
 		return	FALSE;
