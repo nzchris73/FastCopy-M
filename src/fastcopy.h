@@ -96,12 +96,12 @@
 #define MAX_OPENTHREADS	16
 
 inline int64 FASTCOPY_BUFSIZE(int64 ovl_size, int64 ovl_num) {
-	int64	need_size = (int64)(ovl_size + 16*KB) * ovl_num * BUFIO_SIZERATIO;
+	int64	need_size = (int64)(ovl_size + static_cast<long long>(16) * KB) * ovl_num * BUFIO_SIZERATIO;
 	return	ALIGN_SIZE(need_size, MB);
 }
 
 inline int FASTCOPY_BUFMB(int ovl_mb, int ovl_num) {
-	return	int(FASTCOPY_BUFSIZE(ovl_mb * MB, ovl_num) / MB);
+	return	int(FASTCOPY_BUFSIZE(static_cast<int64>(ovl_mb) * MB, ovl_num) / MB);
 }
 
 struct TotalTrans {
@@ -197,9 +197,9 @@ struct FileStat {
 	FilterRes	filterRes;
 	int			renameCount;
 	int			size;
-	int			minSize;		// upperName 分を含めない
+	int			minSize;		// do not include upper Name
 	DWORD		hashVal;		// upperName の hash値
-	HANDLE		hOvlFile;		// Overlap I/O用（BackupReadしない場合は、hFile と同じ値）
+	HANDLE		hOvlFile;		// For Overlap I/O (same value as h File if not Backup Read)
 
 	// for hashTable
 	FileStat	*next;
@@ -216,7 +216,7 @@ struct FileStat {
 	BYTE		digest[SHA256_SIZE];
 	WCHAR		cFileName[2];	// 2 == dummy
 
-	int64&	FileSize() { return *(int64 *)&nFileSizeLow; } // Low/Highの順序
+	int64&	FileSize() { return *(int64 *)&nFileSizeLow; } // Low/High order
 	void	SetFileSize(int64 file_size) { *(int64 *)&nFileSizeLow = file_size; }
 	void	SetLinkData(DWORD *data) { memcpy(digest, data, sizeof(DWORD) * 3); }
 	DWORD	*GetLinkData() { return (DWORD *)digest; }
@@ -229,10 +229,10 @@ inline int64 WriteTime(const WIN32_FIND_DATAW &fdat) {
 	return *(int64 *)&fdat.ftLastWriteTime;
 }
 inline int64 FileSize(const WIN32_FIND_DATAW &fdat) {
-	return ((int64)fdat.nFileSizeHigh << 32) + fdat.nFileSizeLow; // High/Lowの順序
+	return ((int64)fdat.nFileSizeHigh << 32) + fdat.nFileSizeLow; // High/Low order
 }
 inline int64 FileSize(const BY_HANDLE_FILE_INFORMATION &bhi) {
-	return ((int64)bhi.nFileSizeHigh << 32) + bhi.nFileSizeLow; // High/Lowの順序
+	return ((int64)bhi.nFileSizeHigh << 32) + bhi.nFileSizeLow; // High/Low order
 }
 
 class StatHash {
@@ -394,24 +394,24 @@ public:
 		size_t	maxDirSize;		// (I/ )
 		size_t	maxMoveSize;	// (I/ )
 		size_t	maxDigestSize;	// (I/ )
-		int		minSectorSize;	// (I/ ) 最小セクタサイズ
-		int64	nbMinSizeNtfs;	// (I/ ) FILE_FLAG_NO_BUFFERING でオープンする最小サイズ
-		int64	nbMinSizeFat;	// (I/ ) FILE_FLAG_NO_BUFFERING でオープンする最小サイズ (FAT用)
-		int		maxLinkHash;	// (I/ ) Dest Hardlink 用 hash table サイズ
+		int		minSectorSize;	// (I/ ) minimum sector size
+		int64	nbMinSizeNtfs;	// (I/ ) Minimum size to open with FILE FLAG NO BUFFERING
+		int64	nbMinSizeFat;	// (I/ ) Minimum size to open with FILE FLAG NO BUFFERING (for FAT)
+		int		maxLinkHash;	// (I/ ) Hash table size for Dest Hardlink
 		int64	allowContFsize;	// (I/ )
 		HWND	hNotifyWnd;		// (I/ )
 		UINT	uNotifyMsg;		// (I/ )
 		int		lcid;			// (I/ )
-		int64	fromDateFilter;	// (I/ ) 最古日時フィルタ
-		int64	toDateFilter;	// (I/ ) 最新日時フィルタ
-		int64	minSizeFilter;	// (I/ ) 最低サイズフィルタ
-		int64	maxSizeFilter;	// (I/ ) 最大サイズフィルタ
-		char	driveMap[64];	// (I/ ) 物理ドライブマップ
-		int		maxRunNum;		// (I/ ) 最大並列同時数（強制実行の場合は無視）
-		int		netDrvMode;		// (I/ ) ネットワークドライブの同一判定（DriveMng::NetDrvMode参照）
-		int		aclReset;		// (I/ ) Create/Remove等で ACLリセットをどこまで行うか
-		BOOL	isRenameMode;	// ( /O) ...「複製します」ダイアログタイトル用情報（暫定）
-	};							//			 将来的に、情報が増えれば、メンバから切り離し
+		int64	fromDateFilter;	// (I/ ) oldest date filter
+		int64	toDateFilter;	// (I/ ) latest date filter
+		int64	minSizeFilter;	// (I/ ) minimum size filter
+		int64	maxSizeFilter;	// (I/ ) maximum size filter
+		char	driveMap[64];	// (I/ ) physical drive map
+		int		maxRunNum;		// (I/ ) Maximum parallel concurrent number (ignored for forced execution)
+		int		netDrvMode;		// (I/ ) Identify network drives (see Drive Mng::Net Drv Mode)
+		int		aclReset;		// (I/ ) How far to perform ACL reset by Create/Remove etc.
+		BOOL	isRenameMode;	// ( /O) ..."Duplicate" dialog title information (provisional)
+	};							//			 If the information increases in the future, it will be separated from the member
 
 	enum Notify { END_NOTIFY, CONFIRM_NOTIFY, RENAME_NOTIFY, LISTING_NOTIFY };
 	struct Confirm {
@@ -498,10 +498,10 @@ protected:
 		Command		cmd;
 		bool		isFlush;
 		DWORD		bufSize;
-		DWORD		readSize;	// 普通ファイルのみ有効
+		DWORD		readSize;	// Valid only for ordinary files
 		BYTE		*buf;
 		int			reqSize;	// request header size
-		FileStat	stat;		// 可変長
+		FileStat	stat;		// Long -lasting
 	};
 
 	struct MkDirInfo {
@@ -539,7 +539,7 @@ protected:
 		int			dataSize;
 		BYTE		digest[SHA256_SIZE];
 		BYTE		*data;
-		WCHAR		path[1]; // さらに dstSector境界後にデータが続く
+		WCHAR		path[1]; // More data after dst Sector boundary
 	};
 
 	struct OverLap : public TListObj {
@@ -561,7 +561,7 @@ protected:
 			SetOvlOffset(0);
 		}
 		~OverLap() { ::CloseHandle(ovl.hEvent); }
-		void SetOvlOffset(int64 offset) {	// 32bit環境では Pointer は32bitのため
+		void SetOvlOffset(int64 offset) {	// Pointer is 32bit in 32bit environment
 			*(int64 *)&ovl.Pointer = offset;
 		}
 		int64 GetOvlOffset() {
@@ -579,28 +579,28 @@ protected:
 		}
 	};
 
-	struct RandomDataBuf {	// 上書き削除用
+	struct RandomDataBuf {	// For overwriting deletion
 		BOOL	is_nsa;
 		DWORD	base_size;
 		DWORD	buf_size;
 		BYTE	*buf[3];
 	};
 
-	// 基本情報
-	DriveMng	driveMng;	// Drive 情報
-	Info		info;		// オプション指定等
+	// Basic information
+	DriveMng	driveMng;	// Drive information
+	Info		info;		// Options specification, etc.
 	uint64		useDrives;
 	StatHash	hash;
 	PathArray	srcArray;
 	PathArray	dstArray;
 
-	WCHAR	*src;			// src パス格納用
-	WCHAR	*dst;			// dst パス格納用
-	WCHAR	*confirmDst;	// 上書き確認調査用
-	WCHAR	*hardLinkDst;	// ハードリンク用
-	int		srcBaseLen;		// src パスの固定部分の長さ
-	int		dstBaseLen;		// dst パスの固定部分の長さ
-	int		srcPrefixLen;	// \\?\ or \\?\UNC\ の長さ
+	WCHAR	*src;			// for storing the src path
+	WCHAR	*dst;			// dst path storage
+	WCHAR	*confirmDst;	// For overwriting confirmation survey
+	WCHAR	*hardLinkDst;	// For hard drinks
+	int		srcBaseLen;		// the length of the fixed portion of the src path
+	int		dstBaseLen;		// length of fixed part of dst path
+	int		srcPrefixLen;	// \\?\ or \\?\UNC\ Length
 	int		dstPrefixLen;
 	BOOL	isExtendDir;
 	int		depthIdxOffset;
@@ -609,18 +609,18 @@ protected:
 	BOOL	isPreSearch;
 	BOOL	isExec;
 	int		maxStatSize;	// max size of FileStat
-	int64	nbMinSize;		// struct Info 参照
+	int64	nbMinSize;		// struct Info Reference
 	int64	timeDiffGrace;
 	BOOL	enableAcl;
 	BOOL	enableStream;
 	BOOL	enableBackupPriv;
 	BOOL	enableSecName;
-	DWORD	acsSysSec; // 有効な場合のみACCESS_SYSTEM_SECURITYが入る
+	DWORD	acsSysSec; // ACCESS SYSTEM SECURITY ONLY IF ENABLED
 
 	FINDEX_INFO_LEVELS
-			findInfoLv; // FindFirstFileEx用info level
-	DWORD	findFlags;  // FindFirstFileEx用flags
-	DWORD	frdFlags;	// ForceRemoveDirectoryW用flags
+			findInfoLv; // Find First File Ex用info level
+	DWORD	findFlags;  // Find First File Ex用flags
+	DWORD	frdFlags;	// Force Remove Directory W用flags
 
 	// セクタ情報など
 	int		srcSectorSize;
@@ -635,8 +635,8 @@ protected:
 	DWORD	flagOvl;
 	WCHAR	src_root[MAX_PATH];
 
-	TotalTrans	preTotal;	// ファイルコピー統計情報
-	TotalTrans	total;		// ファイルコピー統計情報
+	TotalTrans	preTotal;	// File copy statistical information
+	TotalTrans	total;		// File copy statistical information
 	TotalTrans	*curTotal;
 
 	// filter
@@ -658,9 +658,9 @@ protected:
 	VBuf	mainBuf;		// Read/Write 用 buffer
 	VBuf	fileStatBuf;	// src file stat 用 buffer
 	VBuf	dirStatBuf;		// src dir stat 用 buffer
-	VBuf	dstStatBuf;		// dst dir/file stat 用 buffer
+	VBuf	dstStatBuf;		// dst dir/file stat用buffer
 
-	VBVec<FileStat *> dstStatIdxVec;	// dstStatBuf 内 entry の index sort 用
+	VBVec<FileStat *> dstStatIdxVec;	// For index sorting of entries in dst Stat Buf
 	VBVec<MkDirInfo>  mkdirQueVec;
 
 	VBuf	dstDirExtBuf;
@@ -668,7 +668,7 @@ protected:
 	VBuf	listBuf;
 	VBuf	ntQueryBuf;
 
-	// データ転送キュー関連
+	// Data transfer queue related
 	TListEx<ReqHead>	readReqList;
 	TListEx<ReqHead>	writeReqList;
 	TListEx<ReqHead>	writeWaitList;
@@ -681,8 +681,8 @@ protected:
 	BYTE		*usedOffset;
 	BYTE		*freeOffset;
 	ReqHead		*writeReq;
-	BOOL		readInterrupt;	// mainBuf終端で Write側に制御を移管
-	BOOL		writeInterrupt; // mainBuf終端で Read側に制御を移管 or Digest計算割り込み
+	BOOL		readInterrupt;	// Transfer control to write side at the end of main Buf
+	BOOL		writeInterrupt; // Transfer control to Read side at the end of main Buf or Digest calculation interrupt
 	int64		reqSendCount;
 	int64		nextFileID;
 	int64		errRFileID;
@@ -694,7 +694,7 @@ protected:
 	OpList		opList;
 	BOOL		opRun;
 
-	// スレッド関連
+	// Thread related
 	HANDLE		hReadThread;
 	HANDLE		hWriteThread;
 	HANDLE		hRDigestThread;
@@ -708,14 +708,14 @@ protected:
 	CRITICAL_SECTION errCs;
 	CRITICAL_SECTION listCs;
 
-	// 時間情報
+	// time information
 	DWORD	startTick;
 	DWORD	preTick;
 	DWORD	endTick;
 	DWORD	suspendTick;
 	DWORD	waitLv;
 
-	// モード・フラグ類
+	// mode flags
 	BOOL	isAbort;
 	BOOL	isSuspend;
 	BOOL	isSameDrv;
@@ -727,7 +727,7 @@ protected:
 	BOOL	dstRequestResult;
 	enum	RunMode { RUN_NORMAL, RUN_DIGESTREQ, RUN_FINISH } runMode;
 
-	// ダイジェスト関連
+	// digest related
 	class DigestBuf : public TDigest {
 	public:
 		DigestBuf() : TDigest() {}
@@ -746,14 +746,14 @@ protected:
 		bool	is_nonbuf;
 	};
 
-	DataList	digestList;	// ハッシュ/Open記録（WriteThread のみ利用）
+	DataList	digestList;	// Hash/Open Record (use only Write Thread)
 	bool IsUsingDigestList() {
 		return (info.verifyFlags & VERIFY_FILE) && (info.flags & LISTING_ONLY) == 0;
 	}
 	bool IsReparseEx(DWORD attr) {
 		return IsReparse(attr) && (info.flags & REPARSE_AS_NORMAL) == 0;
 	}
-	bool NeedSymlinkDeref(const WIN32_FIND_DATAW *fdat) {	// symlink の実体参照が必要かどうか
+	bool NeedSymlinkDeref(const WIN32_FIND_DATAW *fdat) {	// Whether the symlink entity reference is required
 		return (info.flags & REPARSE_AS_NORMAL) && !IsDir(fdat->dwFileAttributes)
 				&& IsSymlink(fdat);
 	}
