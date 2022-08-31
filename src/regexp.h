@@ -94,8 +94,8 @@ public:
 			s->st[i] = ~st[i];
 		}
 
-		// s の bit長が長い場合は ~0 で埋める（this に合わせて truncateしない）
-		// GetReverse(&x); st &= x; 等の演算で不要なクリアが起きないように
+	// If the bit length of s is long, fill with ~0 (do not truncate according to this)
+// Avoid unnecessary clearing in operations such as Get Reverse(&x); st &= x;
 		num = s->st_num;
 		for (int i=st_num; i < num; i++) {
 			s->st[i] = ~(uint64)0;

@@ -91,10 +91,10 @@ class ShareInfo;
 
 class DriveMng {
 public:
-	// ネットワークドライブでの同一物理ドライブと見做す判定
-	//  NET_UNC_FULLVAL: UNCボリューム名全体で判断
-	//  NET_UNC_SVRONLY: UNCサーバ名部分で判断
-	//  NET_UNC_COMMON:  サーバを問わず、ネットワーク経由は同じと見做す
+	// Judgment that regards the same physical drive on a network drive
+	//  NET UNC FULLVAL: Determined by the entire UNC volume name
+	//  NET UNC SVRONLY: Determined by the UNC server name part
+	//  NET UNC COMMON: Regardless of the server, the network connection is assumed to be the same.
 	enum NetDrvMode { NET_UNC_FULLVAL=0, NET_UNC_SVRONLY=1, NET_UNC_COMMON=2 };
 	enum Flags { SSD = 1, WEBDAV = 2 };
 

@@ -20,7 +20,7 @@ static HICON hPauseIcon;
 using namespace std;
 
 /*
-	Setup用Sheet
+	Setup with sheet
 */
 BOOL TSetupSheet::Create(int _resId, Cfg *_cfg, TSetupDlg *_parent)
 {
@@ -152,7 +152,7 @@ BOOL TSetupSheet::SetData()
 		CheckDlgButton(EXTENDFILTER_CHECK, cfg->isExtendFilter);
 		CheckDlgButton(OWDEL_CHECK, cfg->enableOwdel);
 
-		if ((cfg->lcid != -1 || GetSystemDefaultLCID() != 0x409)) { // == 0x411 改成 != 0x409 让所有语言都可以切换到英文
+		if ((cfg->lcid != -1 || GetSystemDefaultLCID() != 0x409)) { // == 0x411 is changed to != 0x409 so that all languages ​​can be switched to English
 			//::ShowWindow(GetDlgItem(LCID_CHECK), SW_SHOW);
 			::EnableWindow(GetDlgItem(LCID_CHECK), TRUE);
 			CheckDlgButton(LCID_CHECK, cfg->lcid == -1 || cfg->lcid != 0x409 ? FALSE : TRUE);
@@ -530,7 +530,7 @@ BOOL TSetupSheet::EventApp(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 /*
-	Setup Dialog初期化処理
+	Setup Dialog initialization process
 */
 TSetupDlg::TSetupDlg(Cfg *_cfg, TWin *_parent) : TDlg(SETUP_DIALOG, _parent)
 {
@@ -546,7 +546,7 @@ TSetupDlg::TSetupDlg(Cfg *_cfg, TWin *_parent) : TDlg(SETUP_DIALOG, _parent)
 }
 
 /*
-	Window 生成時の CallBack
+	Call Back when creating a Window
 */
 BOOL TSetupDlg::EvCreate(LPARAM lParam)
 {
@@ -677,7 +677,7 @@ void TSetupDlg::SetSheet()
 #define SETADMINMODE_PROC	"SetAdminMode"
 
 /*
-	ShellExt初期化処理
+	Shell Ext initialization processing
 */
 ShellExt::ShellExt(Cfg *_cfg, TSetupSheet *_parent) : cfg(_cfg), parent(_parent)
 {
@@ -725,8 +725,8 @@ BOOL ShellExt::Load(const WCHAR *dll_name)
 	GetMenuFlagsProc = (int (WINAPI *)(BOOL))GetProcAddress(hShDll, GETMENUFLAGS_PROC);
 	SetAdminModeProc = (BOOL (WINAPI *)(BOOL))GetProcAddress(hShDll, SETADMINMODE_PROC);
 
-// ver違いで proc error になるが、
-// install時に overwrite failを検出して、リネームする
+// Proc error due to ver difference,
+// Detect overwrite fail during install and rename
 
 	if (!RegisterDllProc || !UnRegisterDllProc || !IsRegisterDllProc
 		|| !RegisterDllUserProc || !UnRegisterDllUserProc

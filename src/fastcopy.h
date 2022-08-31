@@ -186,7 +186,7 @@ struct FileStat {
 	FILETIME	ftLastAccessTime;
 	FILETIME	ftLastWriteTime;
 	DWORD		nFileSizeLow;	// WIN32_FIND_DATA の nFileSizeLow/High
-	DWORD		nFileSizeHigh;	// とは逆順（int64 用）
+	DWORD		nFileSizeHigh;	// in reverse order (for int64)
 	DWORD		dwFileAttributes;	// 0 == ALTSTREAM
 	DWORD		dwReserved0; 		// WIN32_FIND_DATA の dwReserved0 (reparse tag)
 	DWORD		lastError;
@@ -198,7 +198,7 @@ struct FileStat {
 	int			renameCount;
 	int			size;
 	int			minSize;		// do not include upper Name
-	DWORD		hashVal;		// upperName の hash値
+	DWORD		hashVal;		// Hash value of upper Name
 	HANDLE		hOvlFile;		// For Overlap I/O (same value as h File if not Backup Read)
 
 	// for hashTable
@@ -655,10 +655,10 @@ protected:
 	VBVec<int>	cnfDepth;
 
 	// バッファ
-	VBuf	mainBuf;		// Read/Write 用 buffer
-	VBuf	fileStatBuf;	// src file stat 用 buffer
-	VBuf	dirStatBuf;		// src dir stat 用 buffer
-	VBuf	dstStatBuf;		// dst dir/file stat用buffer
+	VBuf	mainBuf;		// Read/Write with buffer
+	VBuf	fileStatBuf;	// src file stat with buffer
+	VBuf	dirStatBuf;		// src dir stat with buffer
+	VBuf	dstStatBuf;		// dst dir/file STAT uses buffer
 
 	VBVec<FileStat *> dstStatIdxVec;	// For index sorting of entries in dst Stat Buf
 	VBVec<MkDirInfo>  mkdirQueVec;
@@ -762,7 +762,7 @@ protected:
 				&& IsSymlink(stat);
 	}
 	enum		CheckDigestMode { CD_NOWAIT, CD_WAIT, CD_FINISH };
-	DataList	wDigestList; // ダイジェスト算出用（Read用バッファ含む）
+	DataList	wDigestList; // Digesting (including buffer for READ)
 
 	DWORD		TransSize(DWORD trans_size) {
 		if (waitLv && (info.flags & AUTOSLOW_IOLIMIT)) {
@@ -771,11 +771,11 @@ protected:
 		return	trans_size;
 	}
 
-	// 移動関連
-	DataList		moveList;		// 移動
-	DataList::Head	*moveFinPtr;	// 書き込み終了ID位置
+	// Movement -related
+	DataList		moveList;		// move
+	DataList::Head	*moveFinPtr;	// Writing end ID position
 
-	TLinkHashTbl	hardLinkList;	// ハードリンク用リスト
+	TLinkHashTbl	hardLinkList;	// Hard link list
 
 	static unsigned WINAPI ReadThread(void *fastCopyObj);
 	static unsigned WINAPI OpenThread(void *fastCopyObj);

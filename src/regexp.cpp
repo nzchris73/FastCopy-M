@@ -116,7 +116,7 @@ void RegExp::AddRegStateEx(StatesType type, WCHAR ch, int state, RegExp::CaseSen
 		AddRegState(type, (WCHAR)(INT_PTR)::CharLowerW((WCHAR *)ch), state);
 		AddRegState(type, (WCHAR)(INT_PTR)::CharUpperW((WCHAR *)ch), state);
 
-		// CASE_INSENSE_SLASH mode では '/' 入力で '\\' も受理するように
+		// CASE INSENSE SLASH mode now accepts '\\' in '/' input
 		if (cs == CASE_INSENSE_SLASH && (ch == '/' || ch == '\\')) {
 			AddRegState(type, (ch == '/') ? '\\' :  '/', state);
 		}
@@ -161,7 +161,7 @@ bool RegExp::RegisterWildCard(const WCHAR *wild_str, RegExp::CaseSense cs)
 
 	do {
 		WCHAR last_ch = ch;
-		ch = *wild_str++;	// 0 も文末判定文字として登録
+		ch = *wild_str++;	// 0 is also registered as an end-of-sentence judgment character
 
 		if (mode == NORMAL) {
 			switch (ch) {

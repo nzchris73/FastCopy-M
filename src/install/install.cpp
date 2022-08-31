@@ -8,6 +8,7 @@
 	Copyright				: H.Shirouzu
 	License					: GNU General Public License version 3
 	Modify  				: Mapaler 2018-12-11
+	Modify  				: nzchris73 2022-08-31
 	======================================================================== */
 
 #include "../tlib/tlib.h"
@@ -77,7 +78,7 @@ int WINAPI WinMain(HINSTANCE hI, HINSTANCE, LPSTR cmdLine, int nCmdShow)
 	::SetCurrentDirectoryW(TGetExeDirW());
 
 	TLibInit();
-//	TSetDefaultLCID(0x409); // for English Dialog Test
+//	TSetDefaultLCID(0x409); // for English Dialogue Test
 
 	if (!TSetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32)) {
 		TLoadLibraryExW(L"iertutil.dll", TLT_SYSDIR);
@@ -102,14 +103,14 @@ int WINAPI WinMain(HINSTANCE hI, HINSTANCE, LPSTR cmdLine, int nCmdShow)
 
 int ExecInTempDir()
 {
-// テンポラリディレクトリ作成
+// Create a temp directory
 	WCHAR	temp[MAX_PATH] = L"";
 	if (::GetTempPathW(wsizeof(temp), temp) == 0) {
 		return	-1;
 	}
 
 	WCHAR	dir[MAX_PATH] = L"";
-	int	dlen = MakePathW(dir, temp, L"");	// 末尾に \\ が無ければ追加
+	int	dlen = MakePathW(dir, temp, L"");	// Add \\ at the end if not
 
 	while (1) {
 		int64	dat;
@@ -123,7 +124,7 @@ int ExecInTempDir()
 		}
 	}
 
-// テンポラリディレクトリにインストーラをコピー
+// Copy installer to temporary directory
 	WCHAR	orgFile[MAX_PATH] = L"";
 	::GetModuleFileNameW(NULL, orgFile, wsizeof(orgFile));
 
@@ -135,7 +136,7 @@ int ExecInTempDir()
 		return	-1;
 	}
 
-// テンポラリディレクトリのインストーラを実行
+// Run installer in temporary directory
 	WCHAR	cmdline[MAX_PATH * 2] = L"";
 	snwprintfz(cmdline, wsizeof(cmdline), L"\"%s\" ", dstFile);
 
@@ -158,7 +159,7 @@ int ExecInTempDir()
 	::CloseHandle(pi.hThread);
 	::CloseHandle(pi.hProcess);
 
-// テンポラリインストーラ終了後に、テンポラリファイル＆ディレクトリを削除
+// Delete temporary files and directories after finishing the temporary installer
 	for (int i=0; i < 100; i++) {
 		if (::GetFileAttributesW(dstFile) != 0xffffffff) {
 			::DeleteFileW(dstFile);
@@ -176,7 +177,7 @@ int ExecInTempDir()
 }
 
 /*
-	インストールアプリケーションクラス
+	Install application class
 */
 TInstApp::TInstApp(HINSTANCE _hI, LPSTR _cmdLine, int _nCmdShow) : TApp(_hI, _cmdLine, _nCmdShow)
 {
@@ -209,7 +210,7 @@ void TInstApp::InitWindow(void)
 
 
 /*
-	メインダイアログクラス
+	Main dialogue class
 */
 TInstDlg::TInstDlg(char *cmdLine) : TDlg(INSTALL_DIALOG),
 	staticText(this), extractBtn(this), startBtn(this)
@@ -346,12 +347,12 @@ TInstDlg::~TInstDlg()
 
 BOOL GetShortcutPath(InstallCfg *cfg)
 {
-// スタートメニュー＆デスクトップに登録
+// Register in Start Menu & Desktop
 	TRegistry	reg(HKEY_CURRENT_USER);
 	if (reg.OpenKey(REGSTR_SHELLFOLDERS)) {
 		WCHAR	buf[MAX_PATH] = L"";
 
-		reg.GetStrMW(REGSTR_PROGRAMS, buf, sizeof(buf)); // wsizeofではない
+		reg.GetStrMW(REGSTR_PROGRAMS, buf, sizeof(buf)); // Not WSIZEOF
 		cfg->startMenu = wcsdup(buf);
 
 		reg.GetStrMW(REGSTR_DESKTOP,  buf, sizeof(buf));
@@ -402,7 +403,7 @@ void TInstDlg::GetDefaultDir()
 }
 
 /*
-	メインダイアログ用 WM_INITDIALOG 処理ルーチン
+	WM_INITDIALOG handling routine for the main dialogue
 */
 BOOL TInstDlg::EvCreate(LPARAM lParam)
 {
@@ -444,22 +445,22 @@ BOOL TInstDlg::EvCreate(LPARAM lParam)
 		return	FALSE;
 	}
 
-	// プロパティシートの生成
+	// Generate Property Sheet
 	staticText.AttachWnd(GetDlgItem(INSTALL_STATIC));
 	propertySheet = new TInstSheet(this, &cfg);
 
-// 現在ディレクトリ設定
+// current directory setting
 	WCHAR	buf[MAX_PATH] = L"";
 	WCHAR	setupDir[MAX_PATH] = L"";
 
-// タイトル設定
+// Title setting
 	if (IsWinVista() && ::IsUserAnAdmin()) {
 		GetWindowTextW(buf, wsizeof(buf));
 		wcscat(buf, L" (Admin)");
 		SetWindowTextW(buf);
 	}
 
-// 既にセットアップされている場合は、セットアップディレクトリを読み出す
+// If already set up, read the setup directory
 	TRegistry	reg(HKEY_CURRENT_USER);
 	if (reg.OpenKey("Software")) {
 		if (reg.OpenKey(HSTOOLS_STR)) {
@@ -522,7 +523,7 @@ BOOL TInstDlg::EvNcDestroy(void)
 }
 
 /*
-	メインダイアログ用 WM_COMMAND 処理ルーチン
+	WM_COMMAND processing routine for main dialogue
 */
 BOOL TInstDlg::EvCommand(WORD wNotifyCode, WORD wID, LPARAM hwndCtl)
 {
@@ -837,7 +838,7 @@ BOOL TInstDlg::Install(void)
 	int		len;
 	BOOL	ret = FALSE;
 
-// インストールパス設定
+// Installation path setting
 	len = GetDlgItemTextW(FILE_EDIT, setupDir, wsizeof(setupDir));
 	if (setupDir[len-1] == '\\') {
 		setupDir[len-1] = 0;
@@ -868,7 +869,7 @@ BOOL TInstDlg::Install(void)
 		MessageBoxW(LoadStrW(IDS_START), INSTALL_STR, MB_OKCANCEL|MB_ICONINFORMATION) != IDOK)
 		return	FALSE;
 
-// ファイルコピー
+// file copy
 	if (cfg.mode == SETUP_MODE) {
 		WCHAR	installPath[MAX_PATH];
 		WCHAR	orgDir[MAX_PATH];
@@ -909,7 +910,7 @@ BOOL TInstDlg::Install(void)
 		}
 	}
 
-// スタートメニュー＆デスクトップに登録
+// Register in Start Menu & Desktop
 	if (!cfg.isAuto) {
 		WCHAR	*linkPath[]	= { cfg.startMenu, cfg.deskTop, NULL };
 		BOOL	execFlg[]	= { cfg.programLink,  cfg.desktopLink };
@@ -929,7 +930,7 @@ BOOL TInstDlg::Install(void)
 		}
 	}
 
-// レジストリにアンインストール情報を登録
+// Register uninstallation information in the registry
 	TRegistry	reg(HKEY_CURRENT_USER);
 	if (reg.OpenKey(REGSTR_PATH_UNINSTALL)) {
 		WCHAR	exePath[MAX_PATH] = {};
@@ -940,7 +941,7 @@ BOOL TInstDlg::Install(void)
 			if (reg.OpenKeyW(FASTCOPY)) {
 				if (reg.GetStrMW(REGSTR_VAL_UNINSTALLER_DISPLAYICON, buf, sizeof(buf)) &&
 					wcscmp(exePath, buf) == 0) {
-					cfg.isAppReg = TRUE; // isAuto でかつ、同じパスにinst済みの場合は再登録
+					cfg.isAppReg = TRUE; // Re-register if isAuto and installed in the same path
 				}
 				reg.CloseKey();
 			}
@@ -1002,7 +1003,7 @@ BOOL TInstDlg::Install(void)
 //			OutW(L"Done\n");
 		}
 		else {
-			// コピーしたアプリケーションを起動
+			// Launch the copied application
 			const WCHAR *msg = LoadStrW(is_delay_copy ? IDS_DELAYSETUPCOMPLETE :
 									  is_rotate ? IDS_REPLACECOMPLETE : IDS_SETUPCOMPLETE);
 
@@ -1020,7 +1021,7 @@ BOOL TInstDlg::Install(void)
 }
 
 /*
-	Vista以降
+	Vista or later
 */
 #ifdef _WIN64
 BOOL ConvertToX86Dir(WCHAR *target)
@@ -1103,7 +1104,7 @@ BOOL ConvertVirtualStoreConf(WCHAR *execDir, WCHAR *userDir, WCHAR *virtualDir)
 	return	TRUE;
 }
 
-// シェル拡張を解除
+// remove shell extension
 enum ShellExtOpe { CHECK_SHELLEXT, UNREGISTER_SHELLEXT };
 
 int ShellExtFunc(WCHAR *setup_dir, ShellExtOpe kind, BOOL isAdmin)
@@ -1152,7 +1153,7 @@ BOOL IsKindOfFile(const WCHAR *org, const WCHAR *exists)
 	return	regex_search(exists, wm, *re);
 }
 
-// ユーザファイルが無いことの確認
+// Make sure there are no user files
 BOOL ReadyToRmFolder(const WCHAR *dir)
 {
 	WCHAR				path[MAX_PATH];
@@ -1217,7 +1218,7 @@ BOOL TInstDlg::UnInstall(void)
 		MessageBoxW(LoadStrW(IDS_START), UNINSTALL_STR, MB_OKCANCEL | MB_ICONINFORMATION) != IDOK)
 		return	FALSE;
 
-	// スタートメニュー＆デスクトップから削除
+	// Remove from Start Menu & Desktop
 	TRegistry	reg(HKEY_CURRENT_USER);
 	if (reg.OpenKey(REGSTR_SHELLFOLDERS)) {
 		char	*regStr[] = { REGSTR_PROGRAMS, REGSTR_DESKTOP, NULL };
@@ -1252,7 +1253,7 @@ BOOL TInstDlg::UnInstall(void)
 		::ShellExecuteExW(&sei);
 	}
 
-// レジストリからアンインストール情報を削除
+// Remove uninstall information from registry
 	if (reg.OpenKey("Software")) {
 		if (reg.OpenKey(HSTOOLS_STR)) {
 			reg.DeleteKeyW(FASTCOPY);
@@ -1261,7 +1262,7 @@ BOOL TInstDlg::UnInstall(void)
 		reg.CloseKey();
 	}
 
-// レジストリからアンインストール情報を削除
+// Remove uninstall information from registry
 	reg.ChangeTopKey(HKEY_CURRENT_USER);
 	if (reg.OpenKey(REGSTR_PATH_UNINSTALL)) {
 		reg.DeleteKeyW(FASTCOPY);
@@ -1277,7 +1278,7 @@ BOOL TInstDlg::UnInstall(void)
 	auto	ret = ReadyToRmFolder(setupDir);
 	auto	ret2 = TRUE;
 
-// AppDataディレクトリ内のiniを削除
+// Delete ini in AppData directory
 	WCHAR	upath[MAX_PATH] = L"";
 
 	if (IsWinVista() && TIsVirtualizedDirW(setupDir)) {
@@ -1295,12 +1296,12 @@ BOOL TInstDlg::UnInstall(void)
 		}
 	}
 
-// 終了メッセージ
+// closing message
 	if (!cfg.isSilent) {
 		MessageBox(
 			(is_shext || !ret || !ret2) ? LoadStr(IDS_UNINSTSHEXTFIN) : LoadStr(IDS_UNINSTFIN));
 
-// インストールディレクトリを開く
+// Open installation directory
 		if (!ret && ::GetFileAttributesW(setupDir) != 0xffffffff) {
 			if (!cfg.isSilent) 
 			::ShellExecuteW(NULL, NULL, setupDir, 0, 0, SW_SHOW);
@@ -1359,8 +1360,8 @@ void TInstDlg::Exit(DWORD exit_code)
 
 BOOL ReadLink(WCHAR *src, WCHAR *dest, WCHAR *arg=NULL)
 {
-	IShellLinkW		*shellLink;
-	IPersistFile	*persistFile;
+	IShellLinkW* shellLink = nullptr;
+	IPersistFile* persistFile = nullptr;
 	BOOL			ret = FALSE;
 
 	if (SUCCEEDED(CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkW,
@@ -1382,7 +1383,7 @@ BOOL ReadLink(WCHAR *src, WCHAR *dest, WCHAR *arg=NULL)
 }
 
 /*
-	同じ内容を持つショートカットを削除（スタートメニューへの重複登録よけ）
+	Delete shortcuts with the same content (avoid duplicate registration in the start menu)
 */
 BOOL TInstDlg::RemoveSameLink(const WCHAR *dir, WCHAR *remove_path)
 {
@@ -1473,7 +1474,7 @@ BOOL TInstSheet::EvCommand(WORD wNotifyCode, WORD wID, LPARAM hwndCtl)
 BOOL TInstSheet::EvCreate(LPARAM lParam)
 {
 	RECT	rc;
-	POINT	pt;
+	POINT	pt{};
 	::GetWindowRect(parent->GetDlgItem(INSTALL_STATIC), &rc);
 	pt.x = rc.left;
 	pt.y = rc.top;
@@ -1494,12 +1495,12 @@ BOOL TInstSheet::EvCreate(LPARAM lParam)
 }
 
 /*
-	ディレクトリダイアログ用汎用ルーチン
+	General -purpose routine for directory dialogue
 */
 BOOL BrowseDirDlg(TWin *parentWin, UINT editCtl, const WCHAR *title, BOOL *is_x64)
 {
 	IMalloc			*iMalloc = NULL;
-	BROWSEINFOW		brInfo;
+	BROWSEINFOW		brInfo{};
 	LPITEMIDLIST	pidlBrowse;
 	WCHAR			fileBuf[MAX_PATH];
 
@@ -1547,7 +1548,7 @@ BOOL BrowseDirDlg(TWin *parentWin, UINT editCtl, const WCHAR *title, BOOL *is_x6
 }
 
 /*
-	BrowseDirDlg用コールバック
+	Callback for BrowseDirDlg
 */
 int CALLBACK BrowseDirDlg_Proc(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM data)
 {
@@ -1560,7 +1561,7 @@ int CALLBACK BrowseDirDlg_Proc(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM data)
 		break;
 
 	case BFFM_SELCHANGED:
-		if (dlg->hWnd) {	// hWndがNULLの間に \Users\(User) が来るのを避ける
+		if (dlg->hWnd) {	// Avoid \Users\(User) coming while hWnd is NULL
 			dlg->SetFileBuf(lParam);
 		}
 		break;
@@ -1569,14 +1570,14 @@ int CALLBACK BrowseDirDlg_Proc(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM data)
 }
 
 /*
-	BrowseDlg用サブクラス生成
+	Subclass generation for BrowseDlg
 */
 BOOL TBrowseDirDlg::AttachWnd(HWND _hWnd)
 {
 	TSubClass::AttachWnd(_hWnd);
 	dirtyFlg = FALSE;
 
-// ディレクトリ設定
+// directory settings
 	DWORD	attr = ::GetFileAttributesW(fileBuf);
 	if (attr == 0xffffffff || (attr & FILE_ATTRIBUTE_DIRECTORY) == 0) {
 		GetParentDirW(fileBuf, fileBuf);
@@ -1584,7 +1585,7 @@ BOOL TBrowseDirDlg::AttachWnd(HWND _hWnd)
 	SendMessageW(BFFM_SETSELECTIONW, TRUE, (LPARAM)fileBuf);
 	SetWindowTextW(FASTCOPY);
 
-// ボタン作成
+// button creation
 	if (is_x64) {
 		TPoint	pt = { 30, 30 };
 		TSize	sz = { 80, 30 };
@@ -1608,14 +1609,14 @@ BOOL TBrowseDirDlg::AttachWnd(HWND _hWnd)
 }
 
 /*
-	BrowseDlg用 WM_COMMAND 処理
+	BrowseDlg is handled with WM_COMMAND
 */
 BOOL TBrowseDirDlg::EvCommand(WORD wNotifyCode, WORD wID, LPARAM hwndCtl)
 {
 	switch (wID) {
 	case MKDIR_BUTTON:
 		{
-			WCHAR	dirBuf[MAX_PATH];
+		WCHAR	dirBuf[MAX_PATH]{};
 			WCHAR	path[MAX_PATH];
 			TInputDlg	dlg(dirBuf, this);
 			if (dlg.Exec() != IDOK)
@@ -1678,7 +1679,7 @@ BOOL TBrowseDirDlg::SetFileBuf(LPARAM list)
 }
 
 /*
-	一行入力
+	one line input
 */
 BOOL TInputDlg::EvCommand(WORD wNotifyCode, WORD wID, LPARAM hwndCtl)
 {
@@ -1696,7 +1697,7 @@ BOOL TInputDlg::EvCommand(WORD wNotifyCode, WORD wID, LPARAM hwndCtl)
 }
 
 /*
-	ファイルの保存されているドライブ識別
+	Drive identification where the file is stored
 */
 UINT GetDriveTypeEx(const WCHAR *file)
 {
@@ -1721,7 +1722,7 @@ UINT GetDriveTypeEx(const WCHAR *file)
 }
 
 /*
-	起動ダイアログ
+	startup dialogue
 */
 TLaunchDlg::TLaunchDlg(const WCHAR *_msg, TWin *_win) : TDlg(LAUNCH_DIALOG, _win)
 {
@@ -1734,7 +1735,7 @@ TLaunchDlg::~TLaunchDlg()
 }
 
 /*
-	メインダイアログ用 WM_INITDIALOG 処理ルーチン
+	WM_INITDIALOG handling routine for the main dialogue
 */
 BOOL TLaunchDlg::EvCreate(LPARAM lParam)
 {
