@@ -1,14 +1,13 @@
 [OPTIONS]
-Binary Index=Yes
 Compatibility=1.1 or later
 Compiled file=..\doc\FastCopy.chm
 Contents file=FastCopy.hhc
 Default Font=‚l‚r ‚oƒSƒVƒbƒN,8,128
 Default Window=Main
-Default topic=FastCopy.htm
+Default topic=FastCopy_eng.htm
 Display compile progress=No
 Full-text search=Yes
-Language=0x411 “ú–{Œê
+Language=0x409 English (United States)
 Title=FastCopy Help
 
 [WINDOWS]
