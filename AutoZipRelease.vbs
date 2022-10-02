@@ -24,9 +24,9 @@ If InStr(1,WScript.FullName,"wscript.exe",1) Then
 	WScript.Quit
 End If
 '====================================
-'函数区
+'function area
 '====================================
-'按编码读取文本
+'read text by encoding
 Function LoadText(FilePath,charset)
 	Set adostream = CreateObject("ADODB.Stream")
 	With adostream
@@ -40,7 +40,7 @@ Function LoadText(FilePath,charset)
 	End With
 	Set adostream = Nothing
 End Function
-'正则表达式搜索
+'regular expression search
 Function RegExpSearch(strng, patrn) 
 	Dim regEx      ' Create variable.
 	Set regEx = New RegExp         ' Create regular expression.
