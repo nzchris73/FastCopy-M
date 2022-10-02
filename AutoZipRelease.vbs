@@ -1,22 +1,22 @@
 '====================================
-'±äÁ¿¶¨ÒåÇø
+'variable definition area
 '====================================
-p_7zip = "vendor\7z.exe" '7-zip³ÌĞòÂ·¾¶
-p_hhc = "vendor\hhc.exe" 'HTML Help Workshop³ÌĞòÂ·¾¶
-p_ver = "src\version.cpp" 'version.cppÎÄ¼şÂ·¾¶
-Set fso = CreateObject("Scripting.FileSystemObject") 'ÎÄ¼ş²Ù×÷ÏµÍ³¶ÔÏó
+p_7zip = "vendor\7z.exe" '7-zip program path
+p_hhc = "vendor\hhc.exe" 'HTML Help Workshop program path
+p_ver = "src\version.cpp" 'version.cpp file path
+Set fso = CreateObject("Scripting.FileSystemObject") 'file operating system object
 Set osh = CreateObject("WScript.Shell")
 
 If Not fso.FileExists(p_7zip) Then
-	WScript.Echo "Ã»ÓĞÕÒµ½7z.exe / 7z.exe(7-Zip) not found."
+	WScript.Echo "7z.exe(7-Zip) not found."
 	WScript.Quit
 End If
 If Not fso.FileExists(p_hhc) Then
-	WScript.Echo "Ã»ÓĞÕÒµ½hhc.exe / hhc.exe(HTML Help Workshop) not found."
+	WScript.Echo "hhc.exe(HTML Help Workshop) not found."
 	WScript.Quit
 End If
 
-'Èç¹ûÎª´°¿ÚÄ£Ê½£¬¸ÄÎªÃüÁîĞĞÄ£Ê½ÖØĞÂÆô¶¯
+'If in window mode, change to command line mode and restart
 If InStr(1,WScript.FullName,"wscript.exe",1) Then
 	cmd = "cscript.exe """ & WScript.ScriptFullName & """"
 	cmd = cmd & " """ & downDir & """"
@@ -24,9 +24,9 @@ If InStr(1,WScript.FullName,"wscript.exe",1) Then
 	WScript.Quit
 End If
 '====================================
-'º¯ÊıÇø
+'å‡½æ•°åŒº
 '====================================
-'°´±àÂë¶ÁÈ¡ÎÄ±¾
+'æŒ‰ç¼–ç è¯»å–æ–‡æœ¬
 Function LoadText(FilePath,charset)
 	Set adostream = CreateObject("ADODB.Stream")
 	With adostream
@@ -40,13 +40,13 @@ Function LoadText(FilePath,charset)
 	End With
 	Set adostream = Nothing
 End Function
-'ÕıÔò±í´ïÊ½ËÑË÷
+'æ­£åˆ™è¡¨è¾¾å¼æœç´¢
 Function RegExpSearch(strng, patrn) 
-	Dim regEx      ' ´´½¨±äÁ¿¡£
-	Set regEx = New RegExp         ' ´´½¨ÕıÔò±í´ïÊ½¡£
-	regEx.Pattern = patrn         ' ÉèÖÃÄ£Ê½¡£
-	regEx.IgnoreCase = True         ' ÉèÖÃÊÇ·ñÇø·Ö´óĞ¡Ğ´£¬TrueÎª²»Çø·Ö¡£
-	regEx.Global = True         ' ÉèÖÃÈ«³ÌÆ¥Åä¡£
+	Dim regEx      ' Create variable.
+	Set regEx = New RegExp         ' Create regular expression.
+	regEx.Pattern = patrn         ' Set the pattern.
+	regEx.IgnoreCase = True         ' Set whether to be case sensitive, True is insensitive.
+	regEx.Global = True         ' Set global match.
 	regEx.MultiLine = True
 	Set RegExpSearch  = regEx.Execute(strng)
 '	If RegExpSearch.Count > 0 Then
@@ -59,7 +59,7 @@ Function RegExpSearch(strng, patrn)
 	Set regEx = Nothing
 End Function
 '====================================
-'Ö÷´úÂë
+'main code
 '====================================
 verCpp = LoadText(p_ver,"utf-8")
 verStrStart = InStr(verCpp,vbCrLf) + Len(vbCrLf)
@@ -68,11 +68,11 @@ verStr = Mid(verCpp,verStrStart,verStrLength)
 Set verStrReg = RegExpSearch(verStr,"\d+\.\d+\.\d+\.\d+")
 verNum = verStrReg.Item(0)
 
-WScript.Echo "±àÒë°ïÖúÎÄ¼ş / Compiling help project(FastCopy.chm) ..."
+WScript.Echo "Compiling help project(FastCopy.chm) ..."
 command = """" & p_hhc & """ help\fastcopy.hhp"
 Set oExec = osh.Exec(command)
 Do While oExec.StdOut.AtEndOfStream <> True
-	'Êä³öÄÚÈİ
+	'output content
 	ReadLine = oExec.StdOut.ReadLine
 	WScript.Echo ReadLine
 Loop
@@ -86,10 +86,10 @@ platform = Split("x86,x64", ",")
 bit = Split("win-32bit,win-64bit", ",")
 For xi = 0 To 1
 	zipName = "FastCopy-M_" & verNum & "_" & bit(xi) & ".zip"
-	WScript.Echo "ÏòÑ¹Ëõ°üÌí¼ÓÎÄ¼ş / Add files to " & zipName & ""
-	'7-Zip½âÑ¹ÎÄ¼şµÄÃüÁîĞĞ
+	WScript.Echo "Add files to " & zipName & ""
+	'7-Zip command line to unzip the file
 	command = """" & p_7zip & """ a -tzip"
-	command = command & " """ & zipName & """ " 'Ñ¹Ëõ°üµØÖ·
+	command = command & " """ & zipName & """ " 'Compressed package address
 	command = command & " doc "
 	command = command & " """ & curDir & "Output\Release\" & platform(0) & "\FastExt1.dll"" "
 	command = command & " """ & curDir & "Output\Release\" & platform(1) & "\FastEx64.dll"" "
@@ -102,6 +102,6 @@ For xi = 0 To 1
 	Loop
 Next
 
-Msgbox "Íê³É / Done."
+Msgbox "Done."
 Set fso=Nothing
 Set osh=Nothing
