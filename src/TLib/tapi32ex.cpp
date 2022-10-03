@@ -261,7 +261,7 @@ BOOL TGenRandom(void *buf, size_t len)
 
 
 //#ifdef USE_XXHASH
-#if 0	// 手抜きハッシュの方が10倍高速だったため、MakeHash用としてはxxHashは使わない
+#if 0	// I don't use xxHash for MakeHash because the lazy hash was 10x faster
 u_int MakeHash(const void *data, size_t size, u_int iv)
 {
 	XXH32_state_s	xh;
@@ -481,7 +481,7 @@ static uint64 rand64_data1[THASH_RAND64_NUM1] = {
 
 #define rand_data1 ((u_int *)rand64_data1)
 /*
-	手抜きハッシュ生成ルーチン
+	Lack of Hash Generation Routine
 */
 inline u_int MAKE_HASH_CORE(u_int sum, u_int data, int offset) {
 	u_int	seed = (data ^ 0x3c0f9791) * 0x7b2fcbc3;
@@ -515,7 +515,7 @@ u_int MakeHash(const void *data, size_t size, u_int iv)
 }
 
 /*
-	手抜きハッシュ生成ルーチン64bit版
+	64-bit version of the sloppy hash generation routine
 */
 inline uint64 MAKE_HASH_CORE64(uint64 sum, uint64 data, int64 offset) {
 	uint64	seed = (data ^ 0x57ff7a3ad28cb573) * 0xda5174b5a1d8414f;
@@ -659,7 +659,7 @@ const char *TGetHashedMachineIdStr2()
 
 void TSetPubKeyBlob(BYTE *n, int n_size, int e, DynBuf *keyblob)
 {
-	keyblob->Alloc(20 + n_size);
+	keyblob->Alloc(20 + static_cast<size_t>(n_size));
 	BYTE	*blob = keyblob->Buf();
 
 	/* PUBLICSTRUC */
@@ -812,13 +812,13 @@ void CheckHashQuality64()
 
 #ifndef HASH_SPEED64
 #ifndef HASH_MD5_64
-		uint64	hash_id = (uint64)(MakeHash64(buf, len) >> 32); // 32bit空間でテスト
+		uint64	hash_id = (uint64)(MakeHash64(buf, len) >> 32); // Tested in 32bit space
 #else
 		uint64	hash_id;
 		char	data[16];
 
 		md5.Reset(); md5.Update(buf, len); md5.GetVal(data);
-		hash_id = *(u_int *)data; // 32bit空間でテスト
+		hash_id = *(u_int *)data; // Tested in 32bit space
 #endif
 		if (ht.Search(NULL, hash_id)) {
 			if (col < 10) Debug("reduced val is %016llx (%d) %s\n", hash_id, len, buf);

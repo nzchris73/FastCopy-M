@@ -470,7 +470,7 @@ size_t IPDict::content_size(size_t max_num) const
 		num++;
 		auto itr = dict.find(k);
 		size_t	data_len = itr->second->UsedSize();		// key:(hexlen):(content)
-		content_len += itr->first.Len() + 1 + len_to_hexlen(data_len) + 1 + data_len;
+		content_len += static_cast<unsigned long long>(itr->first.Len()) + 1 + len_to_hexlen(data_len) + 1 + data_len;
 	}
 	if (num >= 2) {
 		content_len += num - 1;

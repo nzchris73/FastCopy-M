@@ -584,10 +584,10 @@ STDMETHODIMP_(ULONG) ShellExtClassFactory::Release()
 }
 
 /*=========================================================================
-  関  数 ： 
-  概  要 ： DLL Export 関数群
-  説  明 ： 
-  注  意 ： 
+Function:
+   Overview: DLL Export function group
+   explanation :
+   Note :
 =========================================================================*/
 STDAPI DllCanUnloadNow(void)
 {

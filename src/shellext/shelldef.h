@@ -32,7 +32,7 @@
 #define SHEXT_TASKTRAY		0x00080000
 #define SHEXT_AUTOCLOSE		0x00100000
 #define SHEXT_MENUICON		0x01000000
-#define SHEXT_ISADMIN		0x40000000	// shex -> fastcopy に伝搬させる
+#define SHEXT_ISADMIN		0x40000000	// shex -> fastcopy propagate to
 #define SHEXT_MENUFLG_EX	0x80000000
 #define SHEXT_MENU_DEFAULT	0xfff00fff
 #define SHEXT_MENU_NEWDEF	0xfff00fcc

@@ -1588,7 +1588,7 @@ BOOL Is3rdPartyFwEnabled(BOOL use_except_list, DWORD timeout, BOOL *is_timeout)
 		}
 		DBG("FW check timeout\n");
 
-		::TerminateThread(hThread, 0); // 強制終了
+		::TerminateThread(hThread, 0); // forced termination
 		::CloseHandle(hThread);
 		return	FALSE;
 	}

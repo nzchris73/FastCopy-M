@@ -152,10 +152,12 @@ BOOL TSetupSheet::SetData()
 		CheckDlgButton(EXTENDFILTER_CHECK, cfg->isExtendFilter);
 		CheckDlgButton(OWDEL_CHECK, cfg->enableOwdel);
 
-		if ((cfg->lcid != -1 || GetSystemDefaultLCID() != 0x409)) { // == 0x411 is changed to != 0x409 so that all languages ​​can be switched to English
-			//::ShowWindow(GetDlgItem(LCID_CHECK), SW_SHOW);
+		//if ((cfg->lcid != -1 || GetSystemDefaultLCID() != 0x409)) { // == 0x411 is changed to != 0x409 so that all languages ​​can be switched to English
+		if ((cfg->lcid != -1 || GetSystemDefaultLCID() != 0x809)) { // == 0x809 for English GB
+			::ShowWindow(GetDlgItem(LCID_CHECK), SW_SHOW);
 			::EnableWindow(GetDlgItem(LCID_CHECK), TRUE);
-			CheckDlgButton(LCID_CHECK, cfg->lcid == -1 || cfg->lcid != 0x409 ? FALSE : TRUE);
+			//CheckDlgButton(LCID_CHECK, cfg->lcid == -1 || cfg->lcid != 0x409 ? FALSE : TRUE);
+			CheckDlgButton(LCID_CHECK, cfg->lcid == -1 || cfg->lcid != 0x809 ? FALSE : TRUE);
 		}
 	}
 	else if (resId == IO_SHEET) {

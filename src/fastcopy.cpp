@@ -20,10 +20,10 @@
 using namespace std;
 
 /*=========================================================================
-  クラス ： FastCopy
-  概  要 ： マルチスレッドなファイルコピー管理クラス
-  説  明 ： 
-  注  意 ： 
+:  Class: FastCopy
+   Overview: Multi-threaded file copy management class
+   explanation :
+   Note :
 =========================================================================*/
 FastCopy::FastCopy()
 {
@@ -167,7 +167,7 @@ FastCopy::FsType FastCopy::GetFsType(const WCHAR *root_dir)
 	if (::GetVolumeInformationW(root_dir, vol, MAX_PATH, &serial, &max_fname, &fs_flags,
 			fs, MAX_PATH) == FALSE) {
 		if (fstype & FSTYPE_NETWORK) {
-			return	fstype;	// FS_NONE で成功扱い
+			return	fstype;	// Treat success with FS_NONE
 		}
 		ConfirmErr(L"GetVolumeInformation", root_dir, CEF_STOP);
 		return	fstype;
@@ -229,8 +229,8 @@ int FastCopy::MakeUnlimitedPath(WCHAR *buf)
 	prefix		= isUNC ? PATH_UNC_PREFIX : PATH_LOCAL_PREFIX;
 	prefix_len	= isUNC ? PATH_UNC_PREFIX_LEN : PATH_LOCAL_PREFIX_LEN;
 
-	// (isUNC ? 1 : 0) ... PATH_UNC_PREFIX の場合、\\server -> \\?\UNC\server 
-	//  にするため、\\server の頭の \ を一つ潰す。
+	// (isUNC ? 1 : 0) ... \\server -> \\?\UNC\server for PATH_UNC_PREFIX
+	//  To make it, squash one \ at the head of \\server.
 	memmove(buf + prefix_len - (isUNC ? 1 : 0), buf, (wcslen(buf) + 1) * sizeof(WCHAR));
 	memcpy(buf, prefix, prefix_len * sizeof(WCHAR));
 	return	prefix_len;
@@ -245,7 +245,7 @@ BOOL FastCopy::InitDstPath(void)
 	const WCHAR	*org_path = dstArray.Path(0);
 	const WCHAR	*dst_root;
 
-	// dst の確認/加工
+	// Confirmation/Processing of dst
 	if (org_path[1] == ':' && org_path[2] != '\\')
 		return	ConfirmErr(LoadStrW(IDS_BACKSLASHERR), org_path, CEF_STOP|CEF_NOAPI), FALSE;
 
@@ -259,28 +259,28 @@ BOOL FastCopy::InitDstPath(void)
 	attr = ::GetFileAttributesW(dst);
 
 	if ((attr = ::GetFileAttributesW(dst)) == 0xffffffff) {
-		info.overWrite = BY_ALWAYS;	// dst が存在しないため、調査の必要がない
+		info.overWrite = BY_ALWAYS;	// dst does not exist, so no need to investigate
 //		if (isListing) PutList(dst, PL_DIRECTORY);
 	}
-	if (!IsDir(attr)) {	// 例外的に reparse point も dir 扱い
+	if (!IsDir(attr)) {	// Exceptionally treat reparse point as dir
 		return	ConfirmErr(L"Not a directory", dst, CEF_STOP|CEF_NOAPI), FALSE;
 	}
 
 	wcscpy(buf, dst);
 	MakePathW(dst, buf, L"");
-	// src自体をコピーするか（dst末尾に \ がついている or 複数指定）
+	// Copy src itself (dst with \ at the end or multiple specification)
 	isExtendDir = wcscmp(buf, dst) == 0 || srcArray.Num() > 1 ? TRUE : FALSE;
 	dstPrefixLen = MakeUnlimitedPath((WCHAR *)dst);
 	dstBaseLen = (int)wcslen(dst);
 
-	// dst ファイルシステム情報取得
+	// dst file system information acquisition
 	dstFsType = GetFsType(dst_root);
 	dstSectorSize = GetSectorSize(dst_root,
 		(IsNetFs(dstFsType) || info.minSectorSize) ? FALSE : TRUE);
 	dstSectorSize = max(dstSectorSize, info.minSectorSize);
 	nbMinSize = IsLocalModernFs(dstFsType) ? info.nbMinSizeNtfs : info.nbMinSizeFat;
 
-	// 差分コピー用dst先ファイル確認
+	// Check dst destination file for differential copy
 	wcscpy(confirmDst, dst);
 
 	return	TRUE;
@@ -310,7 +310,7 @@ BOOL FastCopy::InitSrcPath(int idx)
 	DWORD		cef_flg = IsStarting() ? 0 : CEF_STOP;
 	DWORD		attr;
 
-	// src の確認/加工
+	// Check/manipulate src
 	if (org_path[1] == ':' && org_path[2] != '\\') {
 		ConfirmErr(LoadStrW(IDS_BACKSLASHERR), org_path, cef_flg|CEF_NOAPI);
 		return	FALSE;
@@ -324,11 +324,11 @@ BOOL FastCopy::InitSrcPath(int idx)
 
 	depthIdxOffset = 0;
 	if ((attr = ::GetFileAttributesW(src)) != 0xffffffff && IsDir(attr)) {
-		// 親ディレクトリ自体をコピーしない場合、\* を付与
+		// Append \* if you don't want to copy the parent directory itself
 		wcscpy(buf, src);
 		MakePathW(src, buf, L"*");
 		if (wcsicmp(buf, src_root_cur) && (isExtendDir || IsReparseEx(attr))) {
-			src[wcslen(src) - 2] = 0;	// 末尾に \* を付けない
+			src[wcslen(src) - 2] = 0;	// no trailing \*
 			depthIdxOffset = 1;
 		}
 	}
@@ -339,10 +339,10 @@ BOOL FastCopy::InitSrcPath(int idx)
 		return	 FALSE;
 	}
 
-	// 確認用dst生成
+	// Confirm to generate with dst
 	wcscpy(confirmDst + dstBaseLen, fname);
 
-	// 同一パスでないことの確認
+	// Confirmation that it is not the same path
 	if (wcsicmp(buf, confirmDst) == 0) {
 		if (info.mode != DIFFCP_MODE || (info.flags & SAMEDIR_RENAME) == 0) {
 			ConfirmErr(LoadStrW(IDS_SAMEPATHERR), confirmDst + dstBaseLen,
@@ -356,7 +356,7 @@ BOOL FastCopy::InitSrcPath(int idx)
 		isRename = FALSE;
 	}
 
-	if (info.mode == MOVE_MODE && IsNoReparseDir(attr)) {	// 親から子への移動は認めない
+	if (info.mode == MOVE_MODE && IsNoReparseDir(attr)) {	// Transfer from parent to child is not allowed
 		int	end_offset = 0;
 		if (fname[0] == '*' || attr == 0xffffffff) {
 			fname[0] = 0;
@@ -376,17 +376,17 @@ BOOL FastCopy::InitSrcPath(int idx)
 	fname[0] = 0;
 	srcBaseLen = (int)wcslen(buf);
 
-	// src ファイルシステム情報取得
+	// Get src file system information
 	if (wcsicmp(src_root_cur, src_root)) {
 		srcFsType = GetFsType(src_root_cur);
 		srcSectorSize = GetSectorSize(src_root_cur,
 			(IsNetFs(srcFsType) || info.minSectorSize) ? FALSE : TRUE);
 		srcSectorSize = max(srcSectorSize, info.minSectorSize);
 
-		sectorSize = max(srcSectorSize, dstSectorSize);		// 大きいほうに合わせる
+		sectorSize = max(srcSectorSize, dstSectorSize);		// fit the big one
 		sectorSize = max(sectorSize, MIN_SECTOR_SIZE);
 
-		// 同一物理ドライブかどうかの調査
+		// Investigating whether it is the same physical drive
 		if (info.flags & FIX_SAMEDISK)
 			isSameDrv = TRUE;
 		else if (info.flags & FIX_DIFFDISK)
@@ -405,11 +405,11 @@ BOOL FastCopy::InitSrcPath(int idx)
 	acsSysSec = (enableSecName && enableAcl
 				 && (info.flags & NO_SACL) == 0
 				 && !IsNetFs(srcFsType) && !IsNetFs(dstFsType)
-				 && IsReparseFs(srcFsType) && IsReparseFs(dstFsType) // samba除去用
+				 && IsReparseFs(srcFsType) && IsReparseFs(dstFsType) // samba removal
 				)
 				? ACCESS_SYSTEM_SECURITY : 0;
 
-	// 最大転送サイズ
+	// Maximum transfer size
 	int64 tmpSize = ssize_t(isSameDrv ? info.bufSize : info.bufSize / 4);
 	if (tmpSize < maxReadSize) maxReadSize = (DWORD)tmpSize;
 	maxReadSize = max(MIN_BUF, maxReadSize);
@@ -417,8 +417,8 @@ BOOL FastCopy::InitSrcPath(int idx)
 	maxWriteSize = min(maxReadSize, maxWriteSize);
 	maxDigestReadSize = min(maxReadSize, maxDigestReadSize);
 
-	// タイムスタンプ同一判断猶予時間設定
-	// 片方が NTFS でない場合、1msec 未満の誤差は許容（UDF 対策）
+	// Time stamp same judgment grace time setting
+	// If one side is not NTFS, an error of less than 1msec is acceptable (UDF measures)
 #define UDF_GRACE	10000
 	timeDiffGrace = info.timeDiffGrace;
 	if ((!IsLocalModernFs(srcFsType) || !IsLocalModernFs(dstFsType))
@@ -464,7 +464,7 @@ BOOL FastCopy::InitDeletePath(int idx)
 	DWORD		cef_flg = IsStarting() ? 0 : CEF_STOP;
 	DWORD		attr;
 
-	// delete 用 path の確認/加工
+	// Confirmation/processing of path for delete
 	if (org_path[1] == ':' && org_path[2] != '\\')
 		return	ConfirmErr(LoadStrW(IDS_BACKSLASHERR), org_path, cef_flg|CEF_NOAPI), FALSE;
 
@@ -488,7 +488,7 @@ BOOL FastCopy::InitDeletePath(int idx)
 	depthIdxOffset = 0;
 	if (attr != 0xffffffff && IsDir(attr)) {
 		wcscpy(buf, dst);
-		// root_dir は末尾に "\*" を付与、それ以外は末尾の "\"を削除
+		// Add "\*" to the end of root_dir, otherwise remove the trailing "\"
 		MakePathW(dst, buf, L"*");
 		if (IsReparse(attr) || wcsicmp(buf, dst_root)) {
 			dst[wcslen(dst) - 2] = 0;
@@ -505,7 +505,7 @@ BOOL FastCopy::InitDeletePath(int idx)
 	if (info.flags & (OVERWRITE_DELETE|OVERWRITE_DELETE_NSA)) {
 		wcscpy(confirmDst, dst);	// for renaming before deleting
 
-		// 最大転送サイズ
+		// Maximum transfer size
 		if (info.bufSize < maxWriteSize) maxWriteSize = (DWORD)info.bufSize;
 		maxWriteSize = max(MIN_BUF, maxWriteSize);
 	}
@@ -636,7 +636,7 @@ BOOL FastCopy::RegisterInfo(const PathArray *_srcArray, const PathArray *_dstArr
 	isRename = FALSE;
 	filterMode = 0;
 	useDrives = 0;
-	timeDiffGrace = info.timeDiffGrace; // InitSrcPath で最終値に更新
+	timeDiffGrace = info.timeDiffGrace; // Update to final value in InitSrcPath
 
 	findFlags = (IsWin7() && !(info.flags & NO_LARGE_FETCH)) ? FIND_FIRST_EX_LARGE_FETCH : 0;
 	frdFlags = FMF_EMPTY_RETRY;
@@ -651,7 +651,7 @@ BOOL FastCopy::RegisterInfo(const PathArray *_srcArray, const PathArray *_dstArr
 
 	src_root[0] = 0;
 
-	// 最大転送サイズ上限（InitSrcPath で再設定）
+	// Maximum transfer size limit (reset in InitSrcPath)）
 	maxReadSize = maxWriteSize = maxDigestReadSize = (DWORD)info.maxOvlSize;
 
 	// reg filter
@@ -702,7 +702,7 @@ BOOL FastCopy::RegisterInfo(const PathArray *_srcArray, const PathArray *_dstArr
 			return	FALSE;
 	}
 	else if (info.mode == TEST_MODE) {
-		srcArray.RegisterPath(L"C:\\");	// 一旦 C:\ で初期化
+		srcArray.RegisterPath(L"C:\\");	// Initialize with C:\
 		dstArray = *_dstArray;
 
 		if (InitDstPath() == FALSE)
@@ -741,12 +741,12 @@ BOOL FastCopy::AllocBuf(void)
 	rOvl.Init(info.maxOvlNum);
 	wOvl.Init(info.maxOvlNum);
 
-	// メインリングバッファ確保
+	// Allocate main ring buffer
 	if (need_mainbuf && mainBuf.AllocBuf(allocSize) == FALSE) {
 		return	ConfirmErr(L"Can't alloc memory(mainBuf)", NULL, CEF_STOP), FALSE;
 	}
 
-	usedOffset = freeOffset = mainBuf.Buf();	// リングバッファ用オフセット初期化
+	usedOffset = freeOffset = mainBuf.Buf();	// Offset initialization for ring buffer
 #ifdef _DEBUG
 //	if (need_mainbuf /*&& info.mode == TEST_MODE*/) {
 //		uint64 *end = (uint64 *)(mainBuf.Buf() + allocSize);
@@ -814,7 +814,7 @@ BOOL FastCopy::AllocBuf(void)
 		}
 	}
 
-	// src/dst dir-entry/attr 用バッファ確保
+	// Allocate buffer for src/dst dir-entry/attr
 	dirStatBuf.AllocBuf(MIN_ATTR_BUF, info.maxDirSize);
 	mkdirQueVec.Init(MIN_MKDIRQUEVEC_NUM, MAX_MKDIRQUEVEC_NUM);
 	dstDirExtBuf.AllocBuf(MIN_DSTDIREXT_BUF, MAX_DSTDIREXT_BUF);
@@ -949,7 +949,7 @@ BOOL FastCopy::PutList(WCHAR *path, DWORD opt, DWORD lastErr, int64 wtime, int64
 			len =  wcscpyz(buf,       path);
 			len += wcscpyz(buf + len, L"\r\n");
 		}
-		else {	// 書式化は UI側コンテキストで行いたいところだが…
+		else {	// I would like to do the formatting in the UI side context...
 			WCHAR	wbuf[128];
 			if (!(info.fileLogFlags & FILELOG_FILESIZE))  fsize = -1;
 			if (!(info.fileLogFlags & FILELOG_TIMESTAMP)) wtime = -1;
@@ -1077,7 +1077,7 @@ BOOL FastCopy::MakeDigest(WCHAR *path, DigestBuf *dbuf, FileStat *stat)
 
 	int64	total_size = 0;
 	int64	order_total = 0, dummy = 0;
-	int64	&verifyTrans = is_src ? curTotal->verifyTrans : dummy;	// src/dstダブルカウント避け
+	int64	&verifyTrans = is_src ? curTotal->verifyTrans : dummy;	// Avoid src/dst double counting
 	DWORD	count = 0;
 	DWORD	max_trans = maxDigestReadSize;
 	if (useOvl && !info.IsNormalOvl(file_size)) {
@@ -1271,8 +1271,8 @@ BOOL FastCopy::ReadDstStat(int dir_len)
 			ret = FALSE;
 			curTotal->wErrDirs++;
 			ConfirmErr(L"FindFirstFileEx(stat)", confirmDst + dstPrefixLen);
-		}	// ファイル名を指定してのコピーで、コピー先が見つからない場合は、
-			// エントリなしでの成功とみなす
+		}	// If the copy destination is not found when specifying the file name,
+		// consider success without entry
 		goto END;
 	}
 	do {
@@ -1285,7 +1285,7 @@ BOOL FastCopy::ReadDstStat(int dir_len)
 			break;
 		}
 
-		if (NeedSymlinkDeref(&fdat)) { // del/moveでは REPARSE_AS_NORMAL は存在しない
+		if (NeedSymlinkDeref(&fdat)) { // REPARSE_AS_NORMAL does not exist for del/move
 			wcscpyz(confirmDst + dir_len, fdat.cFileName);
 			ModifyRealFdat(confirmDst, &fdat, enableBackupPriv);
 		}
@@ -1323,7 +1323,7 @@ BOOL StatHash::Init(VBVec<FileStat *> *statIdxVec)
 	size_t	data_num = statIdxVec->UsedNum();
 	hashNum = data_num | 7;
 
-	// hash table を Used の直後に確保
+	// hash table immediately after Used
 	ssize_t	require_size = hashNum * sizeof(FileStat *);
 	ssize_t	grow_size    = require_size - statIdxVec->RemainSize();
 
@@ -1355,10 +1355,10 @@ FileStat *StatHash::Search(WCHAR *upperName, DWORD hash_val)
 }
 
 /*=========================================================================
-  関  数 ： RDigestThread
-  概  要 ： RDigestThread 処理
-  説  明 ： 
-  注  意 ： 
+:  Function: RDigestThread
+   Overview: RDigestThread processing
+   explanation :
+   Note :
 =========================================================================*/
 unsigned WINAPI FastCopy::RDigestThread(void *fastCopyObj)
 {
@@ -1416,10 +1416,10 @@ BOOL FastCopy::RDigestThreadCore(void)
 }
 
 /*=========================================================================
-  関  数 ： WDigestThread
-  概  要 ： WDigestThread 処理
-  説  明 ： 
-  注  意 ： 
+:  Function: WDigestThread
+   Overview: WDigestThread processing
+   explanation :
+   Note :
 =========================================================================*/
 unsigned WINAPI FastCopy::WDigestThread(void *fastCopyObj)
 {
@@ -1431,8 +1431,8 @@ BOOL FastCopy::WDigestThreadCore(void)
 	int64			fileID = 0;
 	DigestCalc		*calc = NULL;
 
-	wDigestList.Lock();	// DataList は Get()後、UnLockで再利用される可能性が出るため、
-						// Peek中に必要な処理を終えて、Getは remove処理として実施
+	wDigestList.Lock();	// DataList is Get() Since there is a possibility that it will be reused in UnLock later,
+						// After finishing necessary processing during Peek, Get is executed as remove processing
 	while (1) {
 		DataList::Head	*head;
 		while ((!(head = wDigestList.Peek())
@@ -1500,7 +1500,7 @@ BOOL FastCopy::WDigestThreadCore(void)
 			if (info.mode == MOVE_MODE) {
 				SetFinishFileID(calc->fileID, MoveObj::ERR);
 			}
-			// PRE_ERR は WriteDigestProc(...DigestObj::NG) でカウント・出力済み
+			// PRE_ERR は WriteDigestProc(...DigestObj::NG) Counted and output with
 			if (calc->status == DigestCalc::ERR) {
 				curTotal->rErrFiles++;
 				if (isListing) {
@@ -1649,7 +1649,7 @@ FastCopy::DigestCalc *FastCopy::GetDigestCalc(DigestObj *obj, DWORD io_size)
 			is_eof = TRUE;
 		}
 		cv.UnLock();
-		if (is_eof) mainBuf.FreeBuf();	// 既にメイン処理が終了している場合は、メインバッファ解放
+		if (is_eof) mainBuf.FreeBuf();	// If the main process has already ended, release the main buffer
 
 		if (!wDigestList.Grow(wDigestList.MaxSize() - wDigestList.Size())) {
 			ConfirmErr(L"Can't alloc memory(digest)", NULL, CEF_STOP);
@@ -1804,7 +1804,7 @@ BOOL FastCopy::EndCore()
 				break;
 			}
 		}
-		else if (hWriteThread) {	// hReadThread が生きている場合は、hReadTread に Closeさせる
+		else if (hWriteThread) {	// If hReadThread is alive, let hReadTread close
 			if ((wret = ::WaitForSingleObject(hWriteThread, 1000)) == WAIT_OBJECT_0) {
 				::CloseHandle(hWriteThread);
 				hWriteThread = NULL;
@@ -2231,7 +2231,7 @@ void FastCopy::WaitCheck()
 	if (IsNetFs(wc->fsType)) {
 		ratio /= 1.4;
 	}
-	else if (!IsSSD(wc->fsType)) {	// HDDの場合、HDD cacheが効きすぎる
+	else if (!IsSSD(wc->fsType)) {	// For HDD, HDD cache is too effective
 		ratio /= 2;
 	}
 	auto	remain = int(mainTick * (1-ratio) / ratio);
@@ -2274,8 +2274,8 @@ unsigned WINAPI FastCopy::TestThread(void *fastCopyObj)
 }
 
 /*
-	テスト用ファイル作成
-	サンプル例）1025byte のファイルを 10dir * 100個 = 計1000個作成
+	Create test file
+    Sample example) Create 10dir * 100 = 1000 total files of 1025 bytes
 	 Source:  1k+1,10,100
 	 DestDir: D:\test\
 */

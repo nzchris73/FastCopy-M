@@ -1259,7 +1259,7 @@ BOOL TMainDlg::ExecCopy(DWORD exec_flags)
 	if (!is_delete_mode)
 		dstArray.RegisterPath(dst);
 
-	// フィルタ
+	// filter
 	WCHAR	from_date[MINI_BUF]=L"", to_date[MINI_BUF]=L"";
 	WCHAR	min_size[MINI_BUF]=L"", max_size[MINI_BUF]=L"";
 	WCHAR	*inc = NULL;
