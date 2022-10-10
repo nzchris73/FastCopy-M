@@ -702,7 +702,7 @@ BOOL FastCopy::RegisterInfo(const PathArray *_srcArray, const PathArray *_dstArr
 			return	FALSE;
 	}
 	else if (info.mode == TEST_MODE) {
-		srcArray.RegisterPath(L"C:\\");	// Initialize with C:\
+		srcArray.RegisterPath(L"C:\\");	// Initialize with C:\ //
 		dstArray = *_dstArray;
 
 		if (InitDstPath() == FALSE)
