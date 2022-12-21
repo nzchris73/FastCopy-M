@@ -170,15 +170,16 @@
       <OmitFramePointers>false</OmitFramePointers>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>C:\Program Files\OpenSSL\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0411</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>comctl32.lib;crypt32.lib;winmm.lib;mpr.lib;Shlwapi.lib;$(ProjectDir)Output\$(Configuration)\$(PlatformShortName)\lib\tlib.lib;$(ProjectDir)Output\$(Configuration)\$(PlatformShortName)\lib\xxhash.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;crypt32.lib;winmm.lib;mpr.lib;Shlwapi.lib;$(ProjectDir)Output\$(Configuration)\$(PlatformShortName)\lib\tlib.lib;$(ProjectDir)Output\$(Configuration)\$(PlatformShortName)\lib\xxhash.lib;%(AdditionalDependencies);libcrypto.lib</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);C:\Program Files\OpenSSL\lib</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(IntDir)\$(TargetName).pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>

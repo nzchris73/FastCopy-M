@@ -205,6 +205,7 @@ BOOL TSetupSheet::SetData()
 		SendDlgItemMessage(HASH_COMBO, CB_ADDSTRING, 0, (LPARAM)"SHA-1");
 		SendDlgItemMessage(HASH_COMBO, CB_ADDSTRING, 0, (LPARAM)"SHA-256");
 		SendDlgItemMessage(HASH_COMBO, CB_ADDSTRING, 0, (LPARAM)"xxHash");
+		SendDlgItemMessage(HASH_COMBO, CB_ADDSTRING, 0, (LPARAM)"xxHash3(128bit)");
 		SendDlgItemMessage(HASH_COMBO, CB_SETCURSEL,
 			cfg->hashMode <= Cfg::SHA256 ? int(cfg->hashMode) : 3, 0);
 		CheckDlgButton(VERIFYREMOVE_CHK, cfg->verifyRemove);

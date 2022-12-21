@@ -23,6 +23,10 @@
 #include "../../external/xxhash/xxhash.h"
 #endif
 
+#ifdef USE_OPENSSL
+#include "openssl/sha.h"
+#endif
+
 using namespace std;
 
 NTSTATUS (WINAPI *pNtQueryInformationFile)(HANDLE, PIO_STATUS_BLOCK, PVOID, ULONG,
