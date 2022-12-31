@@ -1,0 +1,3 @@
+﻿cl : command line  warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+  testzlib.c
+  testzlibdll.vcxproj -> C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc14\x64\TestZlibDllDebug\testzlibdll.exe
