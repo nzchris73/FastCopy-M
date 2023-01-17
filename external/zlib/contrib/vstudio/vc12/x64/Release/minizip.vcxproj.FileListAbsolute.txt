@@ -1,0 +1,1 @@
+C:\Users\chris\Documents\GitHub\FastCopy-M\external\zlib\contrib\vstudio\vc12\x64\Release\minizip.exe

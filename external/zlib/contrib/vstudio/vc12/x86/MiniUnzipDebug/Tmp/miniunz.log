@@ -1,0 +1,3 @@
+﻿cl : command line  warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+  miniunz.c
+  miniunz.vcxproj -> C:\Users\chris\Documents\GitHub\FastCopy-M\external\zlib\contrib\vstudio\vc12\x86\MiniUnzipDebug\miniunz.exe
