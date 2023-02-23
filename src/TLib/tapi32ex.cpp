@@ -24,7 +24,7 @@
 #endif
 
 #ifdef USE_OPENSSL
-#include "openssl/sha.h"
+#include "../../external/openssl/sha.h"
 #endif
 
 using namespace std;
