@@ -1,0 +1,7 @@
+C:\Users\chris\Documents\GitHub\zlib\contrib\dotzlib\DotZLib\bin\Debug\DotZLib.dll
+C:\Users\chris\Documents\GitHub\zlib\contrib\dotzlib\DotZLib\bin\Debug\DotZLib.pdb
+C:\Users\chris\Documents\GitHub\zlib\contrib\dotzlib\DotZLib\bin\Debug\DotZLib.xml
+C:\Users\chris\Documents\GitHub\zlib\contrib\dotzlib\DotZLib\obj\Debug\DotZLib.csproj.AssemblyReference.cache
+C:\Users\chris\Documents\GitHub\zlib\contrib\dotzlib\DotZLib\obj\Debug\DotZLib.csproj.CoreCompileInputs.cache
+C:\Users\chris\Documents\GitHub\zlib\contrib\dotzlib\DotZLib\obj\Debug\DotZLib.dll
+C:\Users\chris\Documents\GitHub\zlib\contrib\dotzlib\DotZLib\obj\Debug\DotZLib.pdb
