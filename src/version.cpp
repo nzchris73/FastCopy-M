@@ -1,5 +1,5 @@
 ﻿static char *version_id =
-	"@(#)Copyright (C) 2004-2019 H.Shirouzu and FastCopy Lab, LLC.	Version.cpp ver3.7.0.22"
+	"@(#)Copyright (C) 2004-2019 H.Shirouzu and FastCopy Lab, LLC.	Version.cpp ver3.7.0.24"
 #ifdef _DEBUG
 	"d"
 #endif
@@ -73,7 +73,7 @@ const char *GetCopyrightStr(void)
 const char *GetLibCopyrightStr(void)
 {
 	if (libcopyright_str[0] == 0) {
-		strcpy(libcopyright_str, "xxHash Library:\r\nCopyright (c) 2012-2023, Yann Collet");
+		strcpy(libcopyright_str, "xxHash Library:\r\nCopyright (c) 2012-2021, Yann Collet");
 	}
 	return	libcopyright_str;
 }

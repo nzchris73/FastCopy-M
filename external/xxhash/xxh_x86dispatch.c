@@ -56,6 +56,14 @@ extern "C" {
 #  error "Dispatching is currently only supported on x86 and x86_64."
 #endif
 
+#ifndef XXH_HAS_INCLUDE
+#  ifdef __has_include
+#    define XXH_HAS_INCLUDE(x) __has_include(x)
+#  else
+#    define XXH_HAS_INCLUDE(x) 0
+#  endif
+#endif
+
 /*!
  * @def XXH_X86DISPATCH_ALLOW_AVX
  * @brief Disables the AVX sanity check.
@@ -84,12 +92,6 @@ extern "C" {
          "If you nonetheless want to do that, please enable the XXH_X86DISPATCH_ALLOW_AVX build variable"
 #endif
 
-#ifdef __has_include
-#  define XXH_HAS_INCLUDE(header) __has_include(header)
-#else
-#  define XXH_HAS_INCLUDE(header) 0
-#endif
-
 /*!
  * @def XXH_DISPATCH_SCALAR
  * @brief Enables/dispatching the scalar code path.
@@ -106,7 +108,7 @@ extern "C" {
 #ifndef XXH_DISPATCH_SCALAR
 #  if defined(__SSE2__) || (defined(_M_IX86_FP) && _M_IX86_FP >= 2) /* SSE2 on by default */ \
      || defined(__x86_64__) || defined(_M_X64) /* x86_64 */ \
-     || defined(__ANDROID__) || defined(__APPLEv__) /* Android or macOS */
+     || defined(__ANDROID__) || defined(__APPLE__) /* Android or macOS */
 #     define XXH_DISPATCH_SCALAR 0 /* disable */
 #  else
 #     define XXH_DISPATCH_SCALAR 1
@@ -182,6 +184,18 @@ extern "C" {
 #  define XXH_TARGET_SSE2 __attribute__((__target__("sse2")))
 #  define XXH_TARGET_AVX2 __attribute__((__target__("avx2")))
 #  define XXH_TARGET_AVX512 __attribute__((__target__("avx512f")))
+#elif defined(__clang__) && defined(_MSC_VER) /* clang-cl.exe */
+#  include <emmintrin.h> /* SSE2 */
+#  if XXH_DISPATCH_AVX2 || XXH_DISPATCH_AVX512
+#    include <immintrin.h> /* AVX2, AVX512F */
+#    include <smmintrin.h>
+#    include <avxintrin.h>
+#    include <avx2intrin.h>
+#    include <avx512fintrin.h>
+#  endif
+#  define XXH_TARGET_SSE2 __attribute__((__target__("sse2")))
+#  define XXH_TARGET_AVX2 __attribute__((__target__("avx2")))
+#  define XXH_TARGET_AVX512 __attribute__((__target__("avx512f")))
 #elif defined(_MSC_VER)
 #  include <intrin.h>
 #  define XXH_TARGET_SSE2
@@ -202,9 +216,11 @@ extern "C" {
 #endif
 #include <assert.h>
 
+#ifndef XXH_DOXYGEN
 #define XXH_INLINE_ALL
 #define XXH_X86DISPATCH
 #include "xxhash.h"
+#endif
 
 #ifndef XXH_HAS_ATTRIBUTE
 #  ifdef __has_attribute
@@ -251,7 +267,7 @@ extern "C" {
 static void XXH_cpuid(xxh_u32 eax, xxh_u32 ecx, xxh_u32* abcd)
 {
 #if defined(_MSC_VER)
-    __cpuidex(abcd, eax, ecx);
+    __cpuidex((int*)abcd, eax, ecx);
 #else
     xxh_u32 ebx, edx;
 # if defined(__i386__) && defined(__PIC__)
