@@ -47,7 +47,7 @@
             <exception cref="T:System.ArgumentException">The sum of offset and count is larger than the length of <c>data</c></exception>
             <exception cref="T:System.NullReferenceException"><c>data</c> is a null reference</exception>
             <exception cref="T:System.ArgumentOutOfRangeException">Offset or count is negative.</exception>
-            <remarks>All the other <c>Update</c> methods are implmeneted in terms of this one.
+            <remarks>All the other <c>Update</c> methods are implemented in terms of this one.
             This is therefore the only method a derived class has to implement</remarks>
         </member>
         <member name="M:DotZLib.ChecksumGeneratorBase.Update(System.Byte[])">
@@ -211,7 +211,7 @@
         </member>
         <member name="M:DotZLib.CodecBase.copyInput(System.Byte[],System.Int32,System.Int32)">
             <summary>
-            Copies a number of bytes to the internal codec buffer - ready for proccesing
+            Copies a number of bytes to the internal codec buffer - ready for processing
             </summary>
             <param name="data">The byte array that contains the data to copy</param>
             <param name="startIndex">The index of the first byte to copy</param>
@@ -542,7 +542,7 @@
         </member>
         <member name="M:DotZLib.GZipStream.Seek(System.Int64,System.IO.SeekOrigin)">
             <summary>
-             Not suppported.
+             Not supported.
             </summary>
             <param name="offset"></param>
             <param name="origin"></param>
@@ -558,14 +558,14 @@
         </member>
         <member name="P:DotZLib.GZipStream.Position">
             <summary>
-            Gets/sets the current position in the <c>GZipStream</c>. Not suppported.
+            Gets/sets the current position in the <c>GZipStream</c>. Not supported.
             </summary>
             <remarks>In this implementation this property is not supported</remarks>
             <exception cref="T:System.NotSupportedException">Always thrown</exception>
         </member>
         <member name="P:DotZLib.GZipStream.Length">
             <summary>
-            Gets the size of the stream. Not suppported.
+            Gets the size of the stream. Not supported.
             </summary>
             <remarks>In this implementation this property is not supported</remarks>
             <exception cref="T:System.NotSupportedException">Always thrown</exception>

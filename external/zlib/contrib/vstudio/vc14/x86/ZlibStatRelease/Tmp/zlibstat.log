@@ -17,4 +17,4 @@
   zip.c
   zutil.c
   Generating Code...
-  zlibstat.vcxproj -> C:\Users\chris\Documents\GitHub\FastCopy-M\external\zlib\contrib\vstudio\vc14\x86\ZlibStatRelease\zlibstat.lib
+  zlibstat.vcxproj -> C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc14\x86\ZlibStatRelease\zlibstat.lib

@@ -2,10 +2,10 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Users\chris\Documents\GitHub\FastCopy-M\external\zlib\contrib\vstudio\vc14\x64\ZlibDllRelease\zlibwapi.dll</FullPath>
+      <FullPath>C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc14\x64\ZlibDllRelease\zlibwapi.dll</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>C:\Users\chris\Documents\GitHub\FastCopy-M\external\zlib\contrib\vstudio\vc14\x64\TestZlibDllRelease\testzlibdll.exe</FullPath>
+      <FullPath>C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc14\x64\TestZlibDllRelease\testzlibdll.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

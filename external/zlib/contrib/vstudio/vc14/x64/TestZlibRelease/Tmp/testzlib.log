@@ -14,4 +14,4 @@
   Previous IPDB not found, fall back to full compilation.
   All 70 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Finished generating code
-  testzlib.vcxproj -> C:\Users\chris\Documents\GitHub\FastCopy-M\external\zlib\contrib\vstudio\vc14\x64\TestZlibRelease\testzlib.exe
+  testzlib.vcxproj -> C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc14\x64\TestZlibRelease\testzlib.exe
