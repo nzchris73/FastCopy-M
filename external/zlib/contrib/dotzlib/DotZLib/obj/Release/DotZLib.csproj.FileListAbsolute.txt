@@ -1,5 +1,0 @@
-C:\Users\chris\Documents\GitHub\zlib\contrib\dotzlib\DotZLib\bin\Release\DotZLib.dll
-C:\Users\chris\Documents\GitHub\zlib\contrib\dotzlib\DotZLib\bin\Release\DotZLib.xml
-C:\Users\chris\Documents\GitHub\zlib\contrib\dotzlib\DotZLib\obj\Release\DotZLib.csproj.AssemblyReference.cache
-C:\Users\chris\Documents\GitHub\zlib\contrib\dotzlib\DotZLib\obj\Release\DotZLib.csproj.CoreCompileInputs.cache
-C:\Users\chris\Documents\GitHub\zlib\contrib\dotzlib\DotZLib\obj\Release\DotZLib.dll
