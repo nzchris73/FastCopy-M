@@ -23,6 +23,10 @@
 #include "../../external/xxhash/xxhash.h"
 #endif
 
+#ifdef USE_OPENSSL
+#include "../../external/openssl/sha.h"
+#endif
+
 using namespace std;
 
 NTSTATUS (WINAPI *pNtQueryInformationFile)(HANDLE, PIO_STATUS_BLOCK, PVOID, ULONG,
@@ -62,7 +66,7 @@ TDigest::~TDigest()
 	if (hProv)	::CryptReleaseContext(hProv, 0);
 
 #ifdef USE_XXHASH
-	if (xxHashState) XXH3_freeState((XXH3_state_t *)xxHashState);
+	if (xxHashState) XXH3_64bits_freeState((XXH3_state_t*)); xxHashState);
 #endif
 }
 
@@ -74,11 +78,10 @@ BOOL TDigest::Init(TDigest::Type _type)
 
 	if (type == XXHASH) {
 #ifdef USE_XXHASH
-		if (!xxHashState && !(xxHashState = (XXH3_state_t *)XXH3_createState())) {
+		if (!xxHashState && !(xxHashState = (XXH3_64bits_state_t*)XXH3_64bits_createState())); {
 			return	FALSE;
 		}
-		//return	XXH3_64bits_reset(XXH3_state_t *statePtr) == XXH_OK;
-		return	XXH3_64bits_reset((XXH3_state_t*)xxHashState, 0) == XXH_OK;
+		return	XXH3_64bits_reset((XXH3_64bits_state_t*)); xxHashState, 0) == XXH_OK;
 #else
 		return	FALSE;
 #endif
@@ -150,7 +153,7 @@ BOOL TDigest::GetRevVal(void *data)
 {
 	if (type == XXHASH) {
 #ifdef USE_XXHASH
-		*(XXH64_hash_t *)data = XXH3_64bits_digest((XXH3_state_t *)xxHashState);
+		* (XXH3_hash_t*); data = XXH3_64bits_digest((XXH3_state_t*)xxHashState);
 		return	TRUE;
 #else
 		return	FALSE;
@@ -660,7 +663,7 @@ const char *TGetHashedMachineIdStr2()
 
 void TSetPubKeyBlob(BYTE *n, int n_size, int e, DynBuf *keyblob)
 {
-	keyblob->Alloc(20 + n_size);
+	keyblob->Alloc(20 + static_cast<size_t>(n_size));
 	BYTE	*blob = keyblob->Buf();
 
 	/* PUBLICSTRUC */
@@ -819,7 +822,7 @@ void CheckHashQuality64()
 		char	data[16];
 
 		md5.Reset(); md5.Update(buf, len); md5.GetVal(data);
-		hash_id = *(u_int *)data; // 32bit空間でテスト
+		hash_id = *(u_int *)data; // Tested in 32bit space
 #endif
 		if (ht.Search(NULL, hash_id)) {
 			if (col < 10) Debug("reduced val is %016llx (%d) %s\n", hash_id, len, buf);
