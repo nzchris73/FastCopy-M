@@ -20,10 +20,8 @@ Now has the following language:
 1. Because it uses multi-threads for Read/Write/Verify, Overlapped I/O, Direct I/O, so it brings out the best speed of devices.
 1. It supports Include/Exclude filter like a UNIX wildcard.
 1. It runs fast and does not hog resources, because MFC is not used. (Designed using Win32 API and C Runtime only)
-## FastCopy-M feature | FastCopy-M特点
-* 汉化并支持更加完整的多国语言显示，添加语言只需要修改资源文件。  
+## FastCopy-M feature
 FastCopy Chinesization and modify to support other language more overall, add language only need add new resources
-* 支持调用网络URL作为帮助文件，资源文件内“IDS_FASTCOPYHELP”修改为网页url即可。  
 Support use http url to replace "chm" help files, change "IDS_FASTCOPYHELP" in resource to your URL.  
 ![URL help](http://ww4.sinaimg.cn/large/6c84b2d6gw1ewbd1y0bygj20rw0le4bq.jpg)
 ## How to Build | 
@@ -31,8 +29,7 @@ FastCopy-M used [VS2017](https://www.visualstudio.com/en-us/downloads/download-v
 
 ### Auto zip release | 
 1. Use VS2017 to build 32-bit and 64-bit release for FastCopy projects.
-1. 在代码根目录建立`vendor`文件夹，并将[HTML Help Workshop](https://docs.microsoft.com/zh-cn/previous-versions/windows/desktop/htmlhelp/microsoft-html-help-downloads)里的`hhc.exe`、`hha.dll`和[7-Zip](https://sparanoid.com/lab/7z/)里的`7z.exe`三个文件放入其中。  
-Create a `vendor` folder in the code root directory and place the `hhc.exe`, `hha.dll`([HTML Help Workshop](https://docs.microsoft.com/zh-cn/previous-versions/windows/desktop/htmlhelp/microsoft-html-help-downloads)) and `7z.exe`([7-Zip](https://sparanoid.com/lab/7z/)) three files in.
+1. Create a `vendor` folder in the code root directory and place the `hhc.exe`, `hha.dll`([HTML Help Workshop](https://docs.microsoft.com/zh-cn/previous-versions/windows/desktop/htmlhelp/microsoft-html-help-downloads)) and `7z.exe`([7-Zip](https://sparanoid.com/lab/7z/)) three files in.
 1. `AutoZipRelease.vbs`。  
 Execute `AutoZipRelease.vbs`.
 1. A 32-bit and 64-bit two zip compression packages will be generated under the code root directory.
