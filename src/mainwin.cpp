@@ -20,7 +20,7 @@
 
 using namespace std;
 
-#define FASTCOPY_TIMER_TICK 250 //基本信息更新时间，帧速
+#define FASTCOPY_TIMER_TICK 250 // Basic information update time, speed
 
 /*=========================================================================
   クラス ： TFastCopyApp
@@ -124,7 +124,7 @@ TMainDlg::TMainDlg() : TDlg(MAIN_DIALOG),
 
 	orgArgv = CommandLineToArgvExW(::GetCommandLineW(), &orgArgc);
 	if (orgArgc == 2 && wcsicmp(orgArgv[1], INSTALL_STR) == 0) {
-		isInstaller = TRUE; // インストーラ起動
+		isInstaller = TRUE; // Start installer
 		orgArgc = 1;
 	}
 	else isInstaller = FALSE;
@@ -196,7 +196,7 @@ TMainDlg::TMainDlg() : TDlg(MAIN_DIALOG),
 
 	curPriority = 0;
 
-	if (IsWinVista()) {	// WinServer2012+ATOM で発生する問題への対処（暫定）
+	if (IsWinVista()) {	// WinServer2012+ATOM Dealing with problems that occur (tentative)
 		::SetPriorityClass(::GetCurrentProcess(), PROCESS_MODE_BACKGROUND_BEGIN);
 		::SetPriorityClass(::GetCurrentProcess(), PROCESS_MODE_BACKGROUND_END);
 	}
@@ -284,8 +284,8 @@ BOOL TMainDlg::MoveCenter()
 
 			if (::GetMonitorInfoW(hMon, &mi)) {
 				auto	pos = cfg.winpos;
-				pos.x += orgRect.cx() / 2; // タイトルバーの左右中央
-				pos.y += 10; // タイトルバーが可視の範囲
+				pos.x += orgRect.cx() / 2; // Left and right centre of title bar
+				pos.y += 10; // Visible range of title bar
 				if (PtInRect(&mi.rcMonitor, pos)) {
 					pt = cfg.winpos;
 					isFixPos = TRUE;
@@ -472,7 +472,7 @@ BOOL TMainDlg::SwapTargetCore(const WCHAR *s, const WCHAR *d, WCHAR *out_s, WCHA
 {
 	WCHAR	*src_fname = NULL;
 	WCHAR	*dst_fname = NULL;
-	BOOL	isSrcLastBS = s[wcslen(s) - 1] == '\\'; // 95系は無視...
+	BOOL	isSrcLastBS = s[wcslen(s) - 1] == '\\'; // Ignore the 95 series...
 	BOOL	isDstLastBS = d[wcslen(d) - 1] == '\\';
 	BOOL	isSrcRoot = FALSE;
 
@@ -497,13 +497,13 @@ BOOL TMainDlg::SwapTargetCore(const WCHAR *s, const WCHAR *d, WCHAR *out_s, WCHA
 	BOOL	isSrcDir = isSrcLastBS || (attr = ::GetFileAttributesW(s)) == 0xffffffff
 			|| (attr & FILE_ATTRIBUTE_DIRECTORY) && (!cfg.isReparse || !IsReparse(attr));
 
-	if (isSrcDir && !isDstLastBS) {	// dst に '\\' がない場合
+	if (isSrcDir && !isDstLastBS) {	// If dst does not have '\\'
 		wcscpy(out_d, s);
 		wcscpy(out_s, d);
 		goto END;
 	}
 
-	if (!isDstLastBS) {	// dst 末尾に '\\' を付与
+	if (!isDstLastBS) {	// Add '\\' to the end of dst
 		MakePathW(buf.WBuf(), d, L"");
 		d = buf.WBuf();
 	}
@@ -642,7 +642,7 @@ void TMainDlg::SetHistPath(int idx)
 
 	PathArray	pathArray;
 
-	// CTL が押されている場合、現在の内容を加算
+	// If CTL is pressed, add current contents
 	if (::GetKeyState(VK_CONTROL) & 0x8000) {
 		int		max_len = srcEdit.GetWindowTextLengthW() + 1;
 		Wstr	wstr(max_len);

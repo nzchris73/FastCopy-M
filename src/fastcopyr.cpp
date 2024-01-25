@@ -19,10 +19,10 @@
 using namespace std;
 
 /*=========================================================================
-  関  数 ： ReadThread
-  概  要 ： Read 処理
-  説  明 ： 
-  注  意 ： 
+  Function : ReadThread
+  Overview : Read processing
+  Explanation :  
+  Note :
 =========================================================================*/
 unsigned WINAPI FastCopy::ReadThread(void *fastCopyObj)
 {

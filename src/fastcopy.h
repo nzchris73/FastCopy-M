@@ -618,11 +618,11 @@ protected:
 	DWORD	acsSysSec; // ACCESS SYSTEM SECURITY ONLY IF ENABLED
 
 	FINDEX_INFO_LEVELS
-			findInfoLv; // Find First File Ex用info level
-	DWORD	findFlags;  // Find First File Ex用flags
-	DWORD	frdFlags;	// Force Remove Directory W用flags
+			findInfoLv; // Find First File Ex info level
+	DWORD	findFlags;  // Find First File Ex flags
+	DWORD	frdFlags;	// Force Remove Directory flags
 
-	// セクタ情報など
+	// sector information etc
 	int		srcSectorSize;
 	int		dstSectorSize;
 	int		sectorSize;
