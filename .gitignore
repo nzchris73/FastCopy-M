@@ -45,3 +45,4 @@
 *.chm
 *.fw.png
 /vendor
+/external/openssl1

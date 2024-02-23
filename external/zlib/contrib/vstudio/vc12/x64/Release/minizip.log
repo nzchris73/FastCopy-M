@@ -1,4 +1,0 @@
-﻿  minizip.c
-C:\Users\chris\Documents\GitHub\FastCopy-M\external\zlib\contrib\minizip\minizip.c(195,25): warning C4267: '=': conversion from 'size_t' to 'unsigned long', possible loss of data
-C:\Users\chris\Documents\GitHub\FastCopy-M\external\zlib\contrib\minizip\minizip.c(409,56): warning C4267: 'function': conversion from 'size_t' to 'unsigned long', possible loss of data
-  minizip.vcxproj -> C:\Users\chris\Documents\GitHub\FastCopy-M\external\zlib\contrib\vstudio\vc12\x64\Release\minizip.exe

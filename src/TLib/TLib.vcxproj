@@ -237,6 +237,7 @@
     <ClCompile Include="twin.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\external\openssl\sha.h" />
     <ClInclude Include="tapi32ex.h" />
     <ClInclude Include="tapi32u8.h" />
     <ClInclude Include="tcmndlg.h" />
