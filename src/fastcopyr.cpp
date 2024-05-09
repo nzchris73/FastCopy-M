@@ -204,15 +204,15 @@ FilterRes FastCopy::FilterCheck(WCHAR *dir, int dir_len, DWORD attr, const WCHAR
 			return	FR_UNMATCH;
 		}
 	}
-	if ((filterMode & REG_FILTER) == 0) return FR_MATCH;   // reg filter なし
-	if (!is_dir && fr != FR_MATCH)      return FR_UNMATCH; // OK なdir配下でない場合はNG
+	if ((filterMode & REG_FILTER) == 0) return FR_MATCH;   // No reg filter
+	if (!is_dir && fr != FR_MATCH)      return FR_UNMATCH; // OK if not under dir
 
 	wcscpy(dir + dir_len, fname);
 
 	int			file_dir_idx = is_dir ? DIR_REG : FILE_REG;
 	VBVec<int>&	depthVec = FindDepth(dir);
 
-	// top level はチェックしない
+	// top level is not checked
 	if (depthVec.UsedNum() <= depthIdxOffset) {
 		if (!is_dir) {
 			ConfirmErr(FmtW(L"Depth Error(%d)", depthIdxOffset), 0, CEF_STOP|CEF_NOAPI);
@@ -245,10 +245,10 @@ FilterRes FastCopy::FilterCheck(WCHAR *dir, int dir_len, DWORD attr, const WCHAR
 		}
 	}
 
-	// FR_MATCH済みの dir 配下は exclude check が終わっていれば OK
+	// FR_MATCHed dir is OK if exclude check is completed
 	if (is_dir && fr == FR_MATCH) return FR_MATCH;
 
-	// includeフィルタ (FR_MATCH(file/dir) FR_CONT(dir))
+	// include filter (FR_MATCH(file/dir) FR_CONT(dir))
 	if ((filterMode & FilterBits(file_dir_idx, INC_REG))) {
 		RegExpVec	&incRel = regExpVec[file_dir_idx][INC_REG][REL_REG];
 		RegExpVec	&incAbs = regExpVec[file_dir_idx][INC_REG][ABS_REG];
@@ -268,7 +268,7 @@ FilterRes FastCopy::FilterCheck(WCHAR *dir, int dir_len, DWORD attr, const WCHAR
 				if (regExp->IsMatch(dir + depth[0])) return FR_MATCH;
 			}
 		}
-		// 絶対指定incのみでかつ、現在階層以上での部分一致もない場合は探索終了
+		// If there is only an absolute specification inc and there is no partial match at the current level or higher, the search ends
 		if (is_dir && incRel.size() == 0 && incAbs.size() > 0) {
 			bool	abs_need_cont = false;
 			for (int i=depthIdx+1; i < incAbs.size(); i++) {
@@ -292,7 +292,7 @@ FilterRes FastCopy::FilterCheck(WCHAR *dir, int dir_len, DWORD attr, const WCHAR
 BOOL FastCopy::ClearNonSurrogateReparse(WIN32_FIND_DATAW *fdat)
 {
 	if (!IsReparse(fdat->dwFileAttributes) || IsReparseTagNameSurrogate(fdat->dwReserved0)) {
-		return	FALSE;	// 通常ファイル or symlink/junction等
+		return	FALSE;	// Normal file or symlink/junction etc.
 	}
 
 	fdat->dwFileAttributes &= ~FILE_ATTRIBUTE_REPARSE_POINT;
@@ -324,7 +324,7 @@ BOOL FastCopy::ReadDirEntry(int dir_len, BOOL confirm_dir, FilterRes fr)
 			curTotal->filterSrcSkips++;
 			continue;
 		}
-		// ディレクトリ＆ファイル情報の蓄積
+		// Accumulation of directory & file information
 		if (IsDir(fdat.dwFileAttributes)) {
 			len = FdatToFileStat(&fdat, (FileStat *)dirStatBuf.UsedEnd(), confirm_dir, cur_fr);
 			dirStatBuf.AddUsedSize(len);
@@ -334,7 +334,7 @@ BOOL FastCopy::ReadDirEntry(int dir_len, BOOL confirm_dir, FilterRes fr)
 			}
 		}
 		else {
-			if (NeedSymlinkDeref(&fdat)) { // del/moveでは REPARSE_AS_NORMAL は存在しない
+			if (NeedSymlinkDeref(&fdat)) { // REPARSE_AS_NORMAL does not exist in del/move
 				wcscpyz(src + dir_len, fdat.cFileName);
 				ModifyRealFdat(src, &fdat, enableBackupPriv);
 			}
@@ -404,14 +404,14 @@ BOOL FastCopy::IsSameContents(FileStat *srcStat, FileStat *dstStat)
 BOOL FastCopy::ReadProc(int dir_len, BOOL confirm_dir, FilterRes fr)
 {
 	BOOL	ret = TRUE;
-	int		curDirStatSize = (int)dirStatBuf.UsedSize(); // カレントのサイズを保存
+	int		curDirStatSize = (int)dirStatBuf.UsedSize(); // save current size
 	BOOL	confirm_local = confirm_dir || isRename;
 	int		confirm_len = dir_len + (dstBaseLen - srcBaseLen);
 
 	WaitCheck();
 
 	if (confirm_local && !isSameDrv) DstRequest(DSTREQ_READSTAT, (void *)(LONG_PTR)confirm_len);
-	// ディレクトリエントリを先にすべて読み取る
+	// Read all directory entries first
 	ret = ReadDirEntry(dir_len, confirm_local, fr);
 
 	if (confirm_local) {
@@ -424,7 +424,7 @@ BOOL FastCopy::ReadProc(int dir_len, BOOL confirm_dir, FilterRes fr)
 	}
 	if (isAbort || !ret) return	FALSE;
 
-	// ファイルを先に処理
+	// Process the file first
 	ReadProcFileEntry(dir_len, confirm_local);
 	if (isAbort) goto END;
 
@@ -432,7 +432,7 @@ BOOL FastCopy::ReadProc(int dir_len, BOOL confirm_dir, FilterRes fr)
 	if (isAbort) goto END;
 
 END:
-	// カレントの dir用Buf サイズを復元
+	// Restore Buf size for current dir
 	dirStatBuf.SetUsedSize(curDirStatSize);
 	return	ret && !isAbort;
 }
@@ -462,13 +462,13 @@ BOOL FastCopy::ReadProcFileEntry(int dir_len, BOOL confirm_local)
 
 				if (!IsOverWriteFile(srcStat, dstStat) && ((info.flags & REPARSE_AS_NORMAL) ||
 				(IsReparse(srcStat->dwFileAttributes) == IsReparse(dstStat->dwFileAttributes)))) {
-/* 比較モード */	if (isListingOnly && (info.verifyFlags & VERIFY_FILE)) {
+/* Comparison mode */	if (isListingOnly && (info.verifyFlags & VERIFY_FILE)) {
 						wcscpy(confirmDst + confirm_len, srcStat->cFileName);
 						wcscpy(src + dir_len, srcStat->cFileName);
 						if (!IsSameContents(srcStat, dstStat) && !isAbort) {
 //							PutList(confirmDst + dstPrefixLen, PL_COMPARE|PL_NOADD);
 						}
-/* 比較モード */	}
+/* Comparison mode */	}
 					if (info.mode == MOVE_MODE) {
 						 PutMoveList(src, path_len, srcStat, MoveObj::DONE);
 					}
@@ -561,7 +561,7 @@ FastCopy::LinkStatus FastCopy::CheckHardLink(WCHAR *path, int len, HANDLE hFileO
 		ret = LINK_NONE;
 	}
 
-	if (hFileOrg == INVALID_HANDLE_VALUE) { // 新たに開いた場合のみクローズ
+	if (hFileOrg == INVALID_HANDLE_VALUE) { // Close only if newly opened
 		::CloseHandle(hFile);
 	}
 	return	ret;
@@ -586,7 +586,7 @@ BOOL FastCopy::ReadProcDirEntry(int dir_len, int dirst_start, BOOL confirm_dir, 
 	BOOL		confirm_local = confirm_dir || isRename;
 	FileStat	*statEnd = (FileStat *)dirStatBuf.UsedEnd();
 
-	// ディレクトリの存在確認
+	// Check the existence of the directory
 	if (confirm_local) {
 		for (FileStat *srcStat = (FileStat *)(dirStatBuf.Buf() + dirst_start); srcStat < statEnd;
 				srcStat = (FileStat *)((BYTE *)srcStat + srcStat->size)) {
@@ -601,7 +601,7 @@ BOOL FastCopy::ReadProcDirEntry(int dir_len, int dirst_start, BOOL confirm_dir, 
 		}
 	}
 
-	// SYNCモードの場合、コピー元に無いファイルを削除
+	// If in SYNC mode, delete files that are not in the copy source
 	if (confirm_local && info.mode == SYNCCP_MODE) {
 		for (int i=0; i < dstStatIdxVec.UsedNum(); i++) {
 			FileStat	*dstStat = dstStatIdxVec.Get(i);
@@ -629,8 +629,8 @@ BOOL FastCopy::ReadProcDirEntry(int dir_len, int dirst_start, BOOL confirm_dir, 
 		}
 	}
 
-	// ディレクトリ処理
-	isRename = FALSE;	// top level より下では無効
+	//Directory processing
+	isRename = FALSE;	// Disabled below top level
 	for (FileStat *srcStat = (FileStat *)(dirStatBuf.Buf() + dirst_start);
 			srcStat < statEnd; srcStat = (FileStat *)((BYTE *)srcStat + srcStat->size)) {
 		bool	is_reparse = IsReparseEx(srcStat->dwFileAttributes);
@@ -708,7 +708,7 @@ BOOL FastCopy::ExecMkDirQueue(void)
 
 		if (info.needExtra) {
 			src[info.dirLen] = 0;
-			req = GetDirExtData(info.stat); // extraを読めずとも mkdir は発行する
+			req = GetDirExtData(info.stat); // mkdir is issued even if extra cannot be read
 			src[info.dirLen] = '\\';
 			// if (info.isReparse && info.stat->rep == NULL) return FALSE;
 		}
@@ -775,7 +775,7 @@ FastCopy::ReqHead *FastCopy::GetDirExtData(FileStat *stat)
 				ConfirmErr(L"BackupRead(DIR)", src + srcPrefixLen);
 			break;
 		}
-		if (size == 0) break;	// 通常終了
+		if (size == 0) break;	// Normal end
 
 		if (sid.dwStreamNameSize && !(ret = ::BackupRead(fh, streamName, sid.dwStreamNameSize,
 				&size, FALSE, TRUE, &context))) {
@@ -787,7 +787,7 @@ FastCopy::ReqHead *FastCopy::GetDirExtData(FileStat *stat)
 			BYTE    *&data = sid.dwStreamId==BACKUP_SECURITY_DATA ? stat->acl     : stat->ead;
 			int &data_size = sid.dwStreamId==BACKUP_SECURITY_DATA ? stat->aclSize : stat->eadSize;
 
-			if (data || sid.Size.HighPart) {	// すでに格納済み（or 4GBを超えるデータ）
+			if (data || sid.Size.HighPart) {	// Already stored (or data over 4GB)
 				if (info.flags & REPORT_ACL_ERROR)
 					ConfirmErr(L"Duplicate or Too big ACL/EADATA(dir)", src + srcPrefixLen);
 				break;
@@ -845,7 +845,7 @@ FastCopy::ReqHead *FastCopy::GetDirExtData(FileStat *stat)
 					data += stat->repSize;
 				}
 			}
-			else {	// MIN_SIZE(1MB) 以上の ACL/EAD のとき...
+			else {	// When ACL/EAD is larger than MIN_SIZE(1MB)...
 				stat->acl = stat->ead = stat->rep = NULL;
 				stat->aclSize = stat->eadSize = stat->repSize = 0;
 				if (info.flags & REPORT_ACL_ERROR) {
@@ -896,7 +896,7 @@ inline bool in_newer_dlsvt_grace(int64 stm, int64 dtm, int64 grace)
 
 
 /*
-	上書き判定
+	Overwrite judgment
 */
 BOOL FastCopy::IsOverWriteFile(FileStat *srcStat, FileStat *dstStat)
 {
@@ -923,15 +923,15 @@ BOOL FastCopy::IsOverWriteFile(FileStat *srcStat, FileStat *dstStat)
 	int64&	stm = use_crtime ? srcStat->CreateTime() : srcStat->WriteTime();
 	int64&	dtm = use_crtime ? dstStat->CreateTime() : dstStat->WriteTime();
 
-	// どちらかが NTFS でない場合（ネットワークドライブを含む）2秒の猶予
+	// 2 seconds grace period if either is not NTFS (including network drive)
 	bool	all_modern_local = IsLocalModernFs(srcFsType) && IsLocalModernFs(dstFsType);
 #define FAT_GRACE 20000000LL
 	int64	grace = (all_modern_local || timeDiffGrace > FAT_GRACE ||
 						((stm % 10000000) && (dtm % 10000000))) ? timeDiffGrace : FAT_GRACE;
 
 	if (info.overWrite == BY_ATTR) {
-		if (dstStat->FileSize() == srcStat->FileSize()) {	// サイズが等しく、かつ...
-			// 更新日付が同じ場合は更新しない
+		if (dstStat->FileSize() == srcStat->FileSize()) {	// Equal sizes and...
+			//Do not update if update date is the same
 			if (in_grace(stm, dtm, grace)) {
 				return	FALSE;
 			}
@@ -942,7 +942,7 @@ BOOL FastCopy::IsOverWriteFile(FileStat *srcStat, FileStat *dstStat)
 		return	TRUE;
 	}
 	if (info.overWrite == BY_LASTEST) {
-		// 更新日付が dst と同じか古い場合は更新しない
+		// Do not update if the update date is the same as or older than dst
 		if (in_newer_grace(stm, dtm, grace)) {
 			return	FALSE;
 		}
@@ -960,10 +960,10 @@ BOOL FastCopy::IsOverWriteFile(FileStat *srcStat, FileStat *dstStat)
 
 
 /*=========================================================================
-  関  数 ： OpenFileProc / OpenThread
-  概  要 ： Open 処理
-  説  明 ： 
-  注  意 ： 
+Function: OpenFileProc / OpenThread
+   Overview: Open processing
+   explanation : 
+   Note :
 =========================================================================*/
 BOOL FastCopy::OpenFileProc(FileStat *stat, int dir_len)
 {
@@ -1084,7 +1084,7 @@ BOOL FastCopy::OpenFileProcCore(WCHAR *path, FileStat *stat, int dir_len, int na
 		}
 
 		if (ret && useOvl) {
-			if (is_backup) {	// エラーの場合は hFile が使われる
+			if (is_backup) {	// In case of error hFile is used
 				stat->hOvlFile = ::CreateFileW(path, mode, share, 0, OPEN_EXISTING, flg|flagOvl,0);
 			} else {
 				stat->hOvlFile = stat->hFile;
@@ -1132,7 +1132,7 @@ BOOL FastCopy::OpenFileBackupProc(WCHAR *path, FileStat *stat, int src_len)
 					ConfirmErr(L"BackupRead(name)", path + srcPrefixLen);
 				break;
 			}
-			// terminate されないため（dwStreamNameSize はバイト数）
+			// Because it will not be terminated (dwStreamNameSize is the number of bytes)
 			*(WCHAR *)((BYTE *)streamName + sid.dwStreamNameSize) = 0;
 		}
 
@@ -1150,7 +1150,7 @@ BOOL FastCopy::OpenFileBackupProc(WCHAR *path, FileStat *stat, int src_len)
 		&& enableAcl) {
 			BYTE	*&data = sid.dwStreamId==BACKUP_SECURITY_DATA ? stat->acl     : stat->ead;
 			int &data_size = sid.dwStreamId==BACKUP_SECURITY_DATA ? stat->aclSize : stat->eadSize;
-			if (data || sid.Size.HighPart) {	// すでに格納済み
+			if (data || sid.Size.HighPart) {	// already stored
 				if (info.flags & REPORT_ACL_ERROR)
 					ConfirmErr(L"Duplicate or Too big ACL/EADATA", path + srcPrefixLen);
 				break;
@@ -1378,7 +1378,7 @@ BOOL FastCopy::ReadFileWithReduce(HANDLE hFile, void *buf, DWORD size, OverLap *
 			}
 			else return FALSE;
 		}
-		break;	// 1回の転送で出来る範囲で終了
+		break;	// Finish as much as possible in one transfer
 	}
 	OVL_LOG(ovl, buf, L"read OK");
 
@@ -1468,7 +1468,7 @@ BOOL FastCopy::ReadAbortFile(int cur_idx, Command cmd, int dir_len, BOOL is_stre
 	FileStat	*stat = openFiles[cur_idx];
 	HANDLE		hIoFile = (stat->hOvlFile != INVALID_HANDLE_VALUE) ? stat->hOvlFile : stat->hFile;
 
-	// REQ_NONE == 書き込み先abortによるエラー処理
+	// REQ_NONE == Error handling by writing destination abort
 	if (cmd != REQ_NONE && (!is_stream || (info.flags & REPORT_STREAM_ERROR))) {
 		DWORD	flags = is_modify ? (CEF_NOAPI|CEF_DATACHANGED) : 0;
 
@@ -1511,10 +1511,10 @@ BOOL FastCopy::ReadFileProcCore(int cur_idx, int dir_len, Command cmd, FileStat 
 	HANDLE	hIoFile = (stat->hOvlFile != INVALID_HANDLE_VALUE) ? stat->hOvlFile : stat->hFile;
 	BOOL	ret = TRUE;
 
-	// 同期I/Oの場合も、ReadFile で OverLapped構造体でシーク位置指定するようになったため
-	// BackupRead等の副作用に備えたシークセットは不要となった。
-	// （これを呼び出すと非同期I/O + MediaProtectモードで、何故か書き込み警告が出る Win7-8.1）
-	// ::SetFilePointer(hIoFile, 0, NULL, FILE_BEGIN);
+// Even in the case of synchronous I/O, the seek position is now specified using the OverLapped structure in ReadFile.
+// A seek set for side effects such as BackupRead is no longer required.
+// (If you call this, a write warning will occur for some reason in asynchronous I/O + MediaProtect mode Win7-8.1)
+// ::SetFilePointer(hIoFile, 0, NULL, FILE_BEGIN);
 
 	while (total_size < file_size && !isAbort) {
 		int64	buf_remain = 0;
@@ -1535,7 +1535,7 @@ BOOL FastCopy::ReadFileProcCore(int cur_idx, int dir_len, Command cmd, FileStat 
 			WaitCheck();
 			if (ret) break;
 
-			// reparse point で別 volume に移動した場合用
+			// For when moving to another volume with reparse point
 			if (::GetLastError() == ERROR_INVALID_PARAMETER && sectorSize < BIG_SECTOR_SIZE) {
 				srcSectorSize = max(srcSectorSize, BIG_SECTOR_SIZE);
 				sectorSize = max(srcSectorSize, dstSectorSize);
@@ -1575,8 +1575,8 @@ BOOL FastCopy::ReadFileProcCore(int cur_idx, int dir_len, Command cmd, FileStat 
 			if (need_dispatch && rOvl.IsEmpty(USED_LIST)) {
 				ovl_tmp->req->isFlush = true;
 			}
-			SendRequest(cmd, ovl_tmp->req, stat); // WRITE_FILE_CONT && !digest時stat不要…
-			cmd = WRITE_FILE_CONT;	// 2回目以降のSendReqはCONT
+			SendRequest(cmd, ovl_tmp->req, stat); // WRITE_FILE_CONT && !stat not required when digesting...
+			cmd = WRITE_FILE_CONT;	// SendReq from the second time onwards is CONT
 
 			if (!isSameDrv && info.mode == MOVE_MODE && total_size < file_size) {
 				FlushMoveList(FALSE);
@@ -1623,7 +1623,7 @@ BOOL FastCopy::ReadFileProc(int *open_idx, int dir_len)
 //				stack[0],stack[1],stack[2],stack[3]
 //				);
 //			ConfirmErr(buf, RestorePath(src, cur_idx, dir_len), CEF_STOP);
-//			*(char *)0 = 0;	// 意図的に例外を発生させる
+//			*(char *)0 = 0;	// Raise an exception intentionally
 //			return FALSE;
 		}
 #endif
@@ -1654,7 +1654,7 @@ BOOL FastCopy::ReadFileProc(int *open_idx, int dir_len)
 			}
 		}
 		if (cmd != WRITE_BACKUP_FILE || !isExec) {
-			goto END; // listing時はWRITE_BACKUP_END不要
+			goto END; // WRITE_BACKUP_END not required when listing
 		}
 	}
 	if (stat->hFile == INVALID_HANDLE_VALUE) {
@@ -1670,7 +1670,7 @@ BOOL FastCopy::ReadFileProc(int *open_idx, int dir_len)
 		}
 		if (conf_res == Confirm::CONTINUE_RESULT) {
 			if ((info.flags & CREATE_OPENERR_FILE) && reqSendCount == req_count) {
-				SendRequest(cmd, 0, stat);	// エラーでも空ファイルを作成する
+				SendRequest(cmd, 0, stat);	// Create an empty file even if there is an error
 			}
 		}
 		ret = FALSE;
@@ -1798,7 +1798,7 @@ BOOL FastCopy::FlushMoveList(BOOL is_finish)
 	BOOL	require_sleep = FALSE;
 
 	if (!is_finish) {
-		if (moveList.RemainSize() > moveList.MinMargin()) {	// Lock不要
+		if (moveList.RemainSize() > moveList.MinMargin()) {	// No lock required
 			if ((info.flags & SERIAL_MOVE) == 0) {
 				return	TRUE;
 			}
@@ -1882,7 +1882,7 @@ FastCopy::ReqHead *FastCopy::AllocReqBuf(int req_size, int64 _data_size, int64 f
 			align_offset = 0;
 			if (isSameDrv) {
 				Debug("ChangeToWriteModeCore in AllocReqBuf\n");
-				if (!ChangeToWriteModeCore()){ // Read -> Write 切り替え
+				if (!ChangeToWriteModeCore()){ // Read -> Write switch
 					 return NULL;
 				}
 			}
@@ -1893,7 +1893,7 @@ FastCopy::ReqHead *FastCopy::AllocReqBuf(int req_size, int64 _data_size, int64 f
 			require_size = data_size + align_req_size;
 		}
 	}
-	// isSameDrv == TRUE の場合、必ず Empty
+	// If isSameDrv == TRUE then always Empty
 
 	while ((!writeReqList.IsEmpty() || !writeWaitList.IsEmpty() || !rDigestReqList.IsEmpty())
 	&& !isAbort) {
