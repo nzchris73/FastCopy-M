@@ -19,10 +19,10 @@
 using namespace std;
 
 /*=========================================================================
-  関  数 ： DeleteThread
-  概  要 ： DELETE_MODE 処理
-  説  明 ： 
-  注  意 ： 
+Function: DeleteThread
+   Overview: DELETE_MODE processing
+   explanation : 
+   Note :
 =========================================================================*/
 unsigned WINAPI FastCopy::DeleteThread(void *fastCopyObj)
 {
@@ -51,7 +51,7 @@ BOOL FastCopy::DeleteThreadCore(void)
 }
 
 /*
-	削除処理
+	Deletion process
 */
 BOOL FastCopy::DeleteProc(WCHAR *path, int dir_len, FilterRes fr)
 {
@@ -215,7 +215,7 @@ BOOL FastCopy::DeleteFileProc(WCHAR *path, int dir_len, WCHAR *fname, FileStat *
 }
 
 /*=========================================================================
-  概  要 ： 上書き削除用ルーチン
+  Overview: Overwrite deletion routine
 =========================================================================*/
 void FastCopy::SetupRandomDataBuf(void)
 {
@@ -234,7 +234,7 @@ void FastCopy::SetupRandomDataBuf(void)
 		data->buf[1] = data->buf[0] + data->buf_size;
 		data->buf[2] = data->buf[1] + data->buf_size;
 		if (info.flags & OVERWRITE_PARANOIA) {
-			TGenRandom(data->buf[0], data->buf_size);	// CryptAPIのrandは遅い...
+			TGenRandom(data->buf[0], data->buf_size);	// CryptAPI rand is slow...
 			TGenRandom(data->buf[1], data->buf_size);
 		}
 		else {
@@ -246,7 +246,7 @@ void FastCopy::SetupRandomDataBuf(void)
 	else {
 		data->buf_size = min((DWORD)maxTransSize, data->buf_size);
 		if (info.flags & OVERWRITE_PARANOIA) {
-			TGenRandom(data->buf[0], data->buf_size);	// CryptAPIのrandは遅い...
+			TGenRandom(data->buf[0], data->buf_size);	// CryptAPI rand is slow...
 		}
 		else {
 			TGenRandomMT(data->buf[0], data->buf_size);
@@ -306,7 +306,7 @@ BOOL FastCopy::WriteRandomData(WCHAR *path, FileStat *stat, BOOL skip_hardlink)
 	//DebugW(L"CreateFile(WriteRandomData) %d %s\n", isExec, path);
 
 	HANDLE	hFile = ForceCreateFileW(path, GENERIC_WRITE, share, 0, OPEN_EXISTING, flg, 0,
-		info.aclReset);	// ReadOnly attr のクリアは親で完了済み
+		info.aclReset);	// Clearing ReadOnly attr has already been completed in the parent
 	BOOL	ret = TRUE;
 
 	if (hFile == INVALID_HANDLE_VALUE) {
@@ -321,7 +321,7 @@ BOOL FastCopy::WriteRandomData(WCHAR *path, FileStat *stat, BOOL skip_hardlink)
 	RandomDataBuf	*data = (RandomDataBuf *)mainBuf.Buf();
 	int64			file_size = is_nonbuf ? ALIGN_SIZE(stat->FileSize(), dstSectorSize)
 										:   stat->FileSize();
-	OverLap	*ovl = wOvl.TopObj(FREE_LIST); // OverLap しない
+	OverLap	*ovl = wOvl.TopObj(FREE_LIST); // No OverLap
 
 	for (int i=0, end=data->is_nsa ? 3 : 1; i < end && ret; i++) {
 		::SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
