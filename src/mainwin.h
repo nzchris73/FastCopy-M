@@ -94,7 +94,7 @@ struct CopyInfo {
 #define SPEED_AUTO		10
 #define SPEED_SUSPEND	0
 
-// SDK 7.0A用Richedit.h に存在しない。SDK10に完全移行したら削除
+// Missing in Richedit.h for SDK 7.0A. Delete after complete migration to SDK10
 #ifndef AURL_ENABLEURL
 #define AURL_ENABLEURL			1
 #define AURL_ENABLEEMAILADDR	2
@@ -182,7 +182,7 @@ protected:
 	BOOL		isReparse;
 	BOOL		isLinkDest;
 	int			maxLinkHash;
-	int			maxTempRunNum;	// 0以外は /force_start=N での一時制限
+	int			maxTempRunNum;	// Temporary limit with /force_start=N if other than 0
 	BOOL		isReCreate;
 	BOOL		isExtendFilter;
 	BOOL		resultStatus;
