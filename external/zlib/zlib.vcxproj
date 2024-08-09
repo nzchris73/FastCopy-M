@@ -224,6 +224,7 @@
   <ItemGroup>
     <ClInclude Include="crc32.h" />
     <ClInclude Include="deflate.h" />
+    <ClInclude Include="gzguts.h" />
     <ClInclude Include="inffast.h" />
     <ClInclude Include="inffixed.h" />
     <ClInclude Include="inflate.h" />

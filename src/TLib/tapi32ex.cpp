@@ -18,6 +18,11 @@
 #include <assert.h>
 #include <random>
 
+/* Enable SIMD */
+#if defined(__x86_64__)
+#define XXH_VECTOR XXH_AVX2
+#endif
+
 #ifdef USE_XXHASH
 #define XXH_STATIC_LINKING_ONLY
 #include "../../external/xxhash/xxhash.h"
@@ -66,7 +71,8 @@ TDigest::~TDigest()
 	if (hProv)	::CryptReleaseContext(hProv, 0);
 
 #ifdef USE_XXHASH
-	if (xxHashState) XXH64_freeState((XXH64_state_t *)xxHashState);
+/*	if (xxHashState) XXH64_freeState((XXH64_state_t *)xxHashState); */
+if (xxHashState) XXH3_freeState((XXH3_state_t *)xxHashState);
 #endif
 }
 
@@ -78,10 +84,12 @@ BOOL TDigest::Init(TDigest::Type _type)
 
 	if (type == XXHASH) {
 #ifdef USE_XXHASH
-		if (!xxHashState && !(xxHashState = (XXH64_state_t *)XXH64_createState())) {
+		/*if (!xxHashState && !(xxHashState = (XXH64_state_t *)XXH64_createState())) { */
+        if (!xxHashState && !(xxHashState = (XXH3_state_t *)XXH3_createState())) {
 			return	FALSE;
 		}
-		return	XXH64_reset((XXH64_state_t *)xxHashState, 0) == XXH_OK;
+		/*return	XXH64_reset((XXH64_state_t *)xxHashState, 0) == XXH_OK; */
+        return	XXH3_64bits_reset((XXH3_state_t *)xxHashState) == XXH_OK;
 #else
 		return	FALSE;
 #endif
@@ -120,7 +128,8 @@ BOOL TDigest::Update(void *data, DWORD size)
 
 	if (type == XXHASH) {
 #ifdef USE_XXHASH
-		return	XXH64_update((XXH64_state_t *)xxHashState, data, size) == XXH_OK;
+		/*return	XXH64_update((XXH64_state_t *)xxHashState, data, size) == XXH_OK; */
+        return	XXH3_64bits_update((XXH3_state_t *)xxHashState, data, size) == XXH_OK;
 #else
 		return	FALSE;
 #endif
@@ -153,7 +162,8 @@ BOOL TDigest::GetRevVal(void *data)
 {
 	if (type == XXHASH) {
 #ifdef USE_XXHASH
-		*(XXH64_hash_t *)data = XXH64_digest((XXH64_state_t *)xxHashState);
+		/* *(XXH64_hash_t *)data = XXH64_digest((XXH64_state_t *)xxHashState); */
+        *(XXH64_hash_t *)data = XXH3_64bits_digest((XXH3_state_t *)xxHashState);
 		return	TRUE;
 #else
 		return	FALSE;
@@ -276,7 +286,7 @@ u_int MakeHash(const void *data, size_t size, u_int iv)
 	return	XXH32_digest(&xh);
 }
 
-uint64 MakeHash64(const void *data, size_t size, uint64 iv)
+/* uint64 MakeHash64(const void *data, size_t size, uint64 iv)
 {
 	XXH64_state_s	xh;
 
@@ -284,6 +294,15 @@ uint64 MakeHash64(const void *data, size_t size, uint64 iv)
 	XXH64_update(&xh, data, size);
 
 	return	XXH64_digest(&xh);
+} */
+uint64 MakeHash64(const void *data, size_t size, uint64 iv)
+{
+	XXH3_state_s	xh;
+
+	XXH3_64bits_reset(&xh, iv);
+	XXH3_64bits_update(&xh, data, size);
+
+	return	XXH3_64bits_digest(&xh);
 }
 
 #else
