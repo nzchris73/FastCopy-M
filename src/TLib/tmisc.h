@@ -177,7 +177,7 @@ protected:
 
 	struct Event {
 		HANDLE	hEvent;
-		u_int	kind;	// Kind が入るが compare and swap用に u_int に。
+		u_int	kind;	// Kind is stored but converted to u_int for compare and swap.
 		Event() { hEvent = 0; kind = INIT_EVENT; }
 	};
 	static Event			*gEvents;
@@ -199,7 +199,7 @@ public:
 	void Lock(void)		{ ::EnterCriticalSection(&cs); }
 	void UnLock(void)	{ ::LeaveCriticalSection(&cs); }
 
-	// ロックを取得してから利用すること
+	// Obtain the lock before using it
 	int  IsWait()	{ return waitBits ? TRUE : FALSE; }
 
 	BOOL Wait(DWORD timeout=INFINITE);
@@ -648,7 +648,7 @@ public:
 	}
 };
 
-/* UNIX - Windows 文字コード変換 */
+/* UNIX - Windows character code conversion */
 template<class T> int LocalNewLineToUnixT(const T *src, T *dst, int max_dstlen, int len=-1) {
 	T		*sv_dst  = dst;
 	T		*max_dst = dst + max_dstlen - 1;
@@ -707,7 +707,7 @@ BOOL TSetThreadLocale(int lcid);
 BOOL TChangeWindowMessageFilter(UINT msg, DWORD flg);
 void TSwitchToThisWindow(HWND hWnd, BOOL flg);
 BOOL TGetTextWidth(HDC hDc, const WCHAR *s, int len, int width, int *rlen, int *rcx);
-HBITMAP TDIBtoDDB(HBITMAP hDibBmp); // 8bit には非対応
+HBITMAP TDIBtoDDB(HBITMAP hDibBmp); // Not compatible with 8bit
 BOOL TOpenExplorerSelOneW(const WCHAR *path);
 BOOL TOpenExplorerSelW(const WCHAR *dir, WCHAR **path, int num);
 
@@ -837,7 +837,7 @@ CRITICAL_SECTION *TLibCs();
 
 BOOL TIsAdminGroup();
 
-// 1601年1月1日から1970年1月1日までの通算100ナノ秒
+// The total 100 nanoseconds between January 1, 1601 and January 1, 1970
 #define UNIXTIME_BASE	((int64)0x019db1ded53e8000)
 
 inline time_t FileTime2UnixTime(FILETIME *ft) {

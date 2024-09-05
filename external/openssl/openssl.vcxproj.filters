@@ -18,5 +18,8 @@
     <ClInclude Include="sha.h" />
     <ClInclude Include="e_os2.h" />
     <ClInclude Include="macros.h" />
+    <ClInclude Include="evp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

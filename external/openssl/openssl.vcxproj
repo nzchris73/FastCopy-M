@@ -135,6 +135,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="evp.h" />
     <ClInclude Include="e_os2.h" />
     <ClInclude Include="macros.h" />
     <ClInclude Include="sha.h" />

@@ -73,10 +73,10 @@ Condition::~Condition(void)
 
 BOOL Condition::InitGlobalEvents()
 {
-	gEvents = new Event[MaxThreads];	// プロセス終了まで解放しない
+	gEvents = new Event[MaxThreads];	// Do not release until the process ends
 	gEventMap = 0xffffffff;
 
-	// 事前に多少作っておく（おそらく十分すぎる）
+	// Make some in advance (probably more than enough)
 	for (int i=0; i < 10; i++) {
 		gEvents[i].hEvent = ::CreateEvent(0, FALSE, FALSE, NULL);
 	}
@@ -455,7 +455,7 @@ HMODULE TLoadLibraryW(WCHAR *dllname)
 	return	hModule;
 }
 
-/* Win64検出 */
+/* Win64 detection */
 BOOL TIsWow64()
 {
 	static BOOL	ret = []() {
@@ -634,7 +634,7 @@ BOOL TChangeWindowMessageFilter(UINT msg, DWORD flg)
 }
 
 /*
-	ファイルダイアログ用汎用ルーチン
+	General routines for file dialogues
 */
 BOOL OpenFileDlg::Exec(UINT editCtl, char *title, char *filter, char *defaultDir, char *defaultExt)
 {
@@ -662,7 +662,7 @@ BOOL OpenFileDlg::Exec(char *target, int targ_size, char *title, char *filter, c
 	U8str			dirName(targ_size);
 	char			*fname = NULL;
 
-	// target が fullpath の場合は default dir は使わない
+	// If target is a fullpath, do not use default dir
 	if (*target && (*target == '\\' || *(target + 1) == ':')) {
 	 	GetFullPathNameU8(target, targ_size, dirName.Buf(), &fname);
 		if (fname) {
@@ -739,8 +739,8 @@ float GetMonitorScaleFactor()
 
 
 /*
-	リンク
-	あらかじめ、CoInitialize(NULL); を実行しておくこと
+	Link
+    Please execute CoInitialize(NULL); beforehand.
 	target ... target_path
 	link   ... new_link_path
 */
@@ -807,7 +807,7 @@ BOOL ShellLinkU8(const char *target, const char *link, const char *arg, const ch
 
 BOOL ReadLinkW(const WCHAR *link, WCHAR *target, WCHAR *arg, WCHAR *desc)
 {
-	IShellLinkW		*shellLink;		// 実際は IShellLinkA or IShellLinkW
+	IShellLinkW		*shellLink;		// Actually IShellLinkA or IShellLinkW
 	IPersistFile	*persistFile;
 	BOOL			ret = FALSE;
 
@@ -861,7 +861,7 @@ HRESULT UpdateLinkW(const WCHAR *link, const WCHAR *arg, const WCHAR *desc, DWOR
 	HRESULT hr = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkW,
 		(void **)&shellLink);
 	if (hr == S_OK) {
-		// 事前に IPersistFile::Loadしないと、Distribute Link Tracking されない
+		// Distributed Link Tracking will not work unless IPersistFile::Load is done in advance.
 		hr = shellLink->QueryInterface(IID_IPersistFile, (void **)&persistFile);
 		if (hr == S_OK) {
 			hr = persistFile->Load(link, STGM_READ);
@@ -895,7 +895,7 @@ HRESULT UpdateLinkU8(const char *link, const char *arg, const char *desc, DWORD 
 
 
 /*
-	リンクファイル削除
+	Delete linked file
 */
 BOOL DeleteLinkW(const WCHAR *link)
 {
@@ -918,7 +918,7 @@ BOOL DeleteLinkU8(const char *link)
 }
 
 /*
-	親ディレクトリ取得（必ずフルパスであること。UNC対応）
+	Get parent directory (must be a full path. UNC supported)
 */
 BOOL GetParentDirW(const WCHAR *srcfile, WCHAR *dir)
 {
@@ -931,15 +931,15 @@ BOOL GetParentDirW(const WCHAR *srcfile, WCHAR *dir)
 	if ((fname - path) > 3 || path[1] != ':')
 		fname[-1] = 0;
 	else
-		fname[0] = 0;		// C:\ の場合
+		fname[0] = 0;		// In the case of C:\
 
 	wcsncpyz(dir, path, MAX_PATH);
 	return	TRUE;
 }
 
 /*
-	2byte文字系でもきちんと動作させるためのルーチン
-	 (*strrchr(path, "\\")=0 だと '表'などで問題を起すため)
+	Routine to make it work properly with 2-byte characters
+    (*strrchr(path, "\\")=0 causes problems with 'tables', etc.)
 */
 BOOL GetParentDirU8(const char *org_path, char *target_dir)
 {
@@ -952,7 +952,7 @@ BOOL GetParentDirU8(const char *org_path, char *target_dir)
 	if (fname - path > 3 || path[1] != ':')
 		*(fname - 1) = 0;
 	else
-		*fname = 0;		// C:\ の場合
+		*fname = 0;		// In the case of C:\
 
 	strncpyz(target_dir, path, MAX_PATH_U8);
 	return	TRUE;
@@ -1052,8 +1052,8 @@ HANDLE CreateFileWithDirW(const WCHAR *path, DWORD flg, DWORD share, SECURITY_AT
 }
 
 
-// HtmlHelp WorkShop をインストールして、htmlhelp.h を include path に
-// 入れること。
+// Install HtmlHelp WorkShop and put htmlhelp.h in your include path.
+// Insert it.
 #define ENABLE_HTML_HELP
 #if defined(ENABLE_HTML_HELP)
 #include <htmlhelp.h>
@@ -1314,7 +1314,7 @@ void vfree(void *d)
 
 
 /*
-	Explorer非公開COM I/F
+	Explorer private COM I/F
 */
 struct NOTIFYITEM {
 	WCHAR	*exe;
@@ -1518,7 +1518,7 @@ BOOL IsInstalledFont(HDC hDc, const WCHAR *face_name, BYTE charset)
 #include <netfw.h>
 #include <OleAuto.h>
 
-// Windows Firewall 除外設定を参照する 3rd Party Firewallリスト
+ // Refer to Windows Firewall exclusion settings 3rd Party Firewall list
 static const WCHAR *Fw3rdPartyExceptKeywords[] = {
 	L"ESET ",
 	NULL,
@@ -1557,7 +1557,7 @@ unsigned __stdcall Is3rdPartyFwEnabledProc(void *_param)
 			if (Get3rdPartyFwName(i, name, MAX_PATH)) {
 				for (int j=0; Fw3rdPartyExceptKeywords[j]; j++) {
 					if (wcsstr(name, Fw3rdPartyExceptKeywords[j])) {
-						goto END;	// 1件でもマッチすれば WinFW有効と判断
+						goto END;	// If even one match occurs, WinFW is considered valid.
 					}
 				}
 			}
@@ -1789,7 +1789,7 @@ static BOOL CheckFwRule(BSTR bpath, INetFwRule *rule, FwStatus *fs)
 	if (rule->get_Profiles(&profTypes) < S_OK) {
 		return	FALSE;
 	}
-	if ((fs->profTypes & profTypes) == 0) {	// 現在のプロファイルに合致しない
+	if ((fs->profTypes & profTypes) == 0) {	// Does not match the current profile
 		return	FALSE;
 	}
 
@@ -1897,7 +1897,7 @@ static BOOL SetFwRule(BSTR bpath, BSTR blabel, INetFwRule *rule, long prof_type)
 //	if (rule->get_Profiles(&local_ptype) < S_OK) {
 //		return	FALSE;
 //	}
-//	if ((prof_type & local_ptype) == 0) {	// 現在のプロファイルに合致しない
+//	if ((prof_type & local_ptype) == 0) {	// Does not match the current profile
 //		return	FALSE;
 //	}
 
@@ -1977,7 +1977,7 @@ BOOL SetFwStatusEx(const WCHAR *path, const WCHAR *label, BOOL enable)
 	return	TRUE;
 }
 
-// 正確な GetTextExtentExPointW
+// Exact GetTextExtentExPointW
 BOOL TGetTextWidth(HDC hDc, const WCHAR *s, int len, int width, int *rlen, int *rcx)
 {
 	TRect	rc;
@@ -2000,7 +2000,7 @@ BOOL TGetTextWidth(HDC hDc, const WCHAR *s, int len, int width, int *rlen, int *
 	return	TRUE;
 }
 
-HBITMAP TDIBtoDDB(HBITMAP hDibBmp) // 8bit には非対応
+HBITMAP TDIBtoDDB(HBITMAP hDibBmp) // Not compatible with 8bit
 {
 	HBITMAP		hDdbBmp  = NULL;
 	HWND		hDesktop = ::GetDesktopWindow();
@@ -2023,7 +2023,7 @@ BOOL TOpenExplorerSelOneW(const WCHAR *path)
 	return	INT_RDC(::ShellExecuteW(0, 0, L"explorer", buf, 0, SW_SHOW)) > 32;
 }
 
-// CoInitialize系必須
+// CoInitialize is required
 BOOL TOpenExplorerSelW(const WCHAR *dir, WCHAR **path, int num)
 {
 	BOOL	ret = FALSE;
@@ -2042,7 +2042,7 @@ BOOL TOpenExplorerSelW(const WCHAR *dir, WCHAR **path, int num)
 
 			HRESULT hr = ::SHOpenFolderAndSelectItems(iDir, num, (LPCITEMIDLIST *)items, 0);
 			if (hr >= S_OK || hr == E_INVALIDARG) {
-				ret = TRUE; // items のエラーの場合は、shell は開く
+				ret = TRUE; // In case of an error in items, the shell will open
 			}
 			for (int i=0; i < num; i++) {
 				if (items[i]) {
@@ -2089,7 +2089,7 @@ BOOL TSetClipBoardTextW(HWND hWnd, const WCHAR *s, int len)
 	return ret;
 }
 
-// バッファオーバーフロー検出用テストルーチン
+// Test routine for detecting buffer overflows
 void bo_test_core(char *buf)
 {
 	static char *p;
@@ -2112,7 +2112,7 @@ void bo_test()
 extern "C" __declspec(noreturn) void __cdecl __raise_securityfailure(PEXCEPTION_POINTERS const exception_pointers);
 #endif
 
-// バッファオーバーフローをApp側例外ハンドラでキャッチするためのhack
+// A hack to catch buffer overflows in the app's exception handler
 // Prevent to avoid FastCopy's ExceptionFilter by __report_gsfailure/__report_securityfailure
 //  like a _set_security_error_handler
 void TGsFailureHack()
@@ -2145,9 +2145,11 @@ void TGsFailureHack()
 }
 
 /*
-	マスク情報をアルファ値として引き継ぐ形でDIBSectionを作成
-	主に、SetMenuItemBitmaps用（GDI+なら Bitmap::FromFile(icon) で簡単…）
-	今のところ、意図的に GetIconInfo は使わず、cx/cyはユーザ指定させる
+Create a DIBSection by inheriting the mask information as an alpha value
+
+Mainly for SetMenuItemBitmaps (if you're using GDI+, it's easy with Bitmap::FromFile(icon)...)
+
+For now, I'm intentionally not using GetIconInfo, and letting the user specify cx/cy
 */
 HBITMAP TIconToBmp(HICON hIcon, int cx, int cy)
 {
@@ -2506,12 +2508,12 @@ BOOL TGetUrlAssocAppW(const WCHAR *scheme, WCHAR *wbuf, int max_len)
 		scheme);
 	if (reg.OpenKeyW(reg_path)) {
 		WCHAR	progId[MAX_PATH];
-		if (reg.GetStrW(L"ProgId", progId, sizeof(progId))) { // サイズはbyte指定
+		if (reg.GetStrW(L"ProgId", progId, sizeof(progId))) { // Size is specified in bytes
 			reg.ChangeTopKey(HKEY_CLASSES_ROOT);
 
 			snwprintfz(reg_path, wsizeof(reg_path), L"%s\\shell\\open\\command", progId);
 			if (reg.OpenKeyW(reg_path)) {
-				if (reg.GetStrW(NULL, progId, sizeof(progId))) { // サイズはbyte指定
+				if (reg.GetStrW(NULL, progId, sizeof(progId))) { // Size is specified in bytes
 					WCHAR	*p = NULL;
 					if (auto tok = strtok_pathW(progId, L" ", &p, FALSE)) {
 						wcsncpyz(wbuf, tok, max_len);

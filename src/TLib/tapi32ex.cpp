@@ -19,9 +19,10 @@
 #include <random>
 
 /* Enable SIMD */
-#if defined(__x86_64__)
+/* Disabling as doco says xxHash should auto select optimisations */
+/* #if defined(__x86_64__)
 #define XXH_VECTOR XXH_AVX2
-#endif
+#endif */
 
 #ifdef USE_XXHASH
 #define XXH_STATIC_LINKING_ONLY
@@ -29,7 +30,7 @@
 #endif
 
 #ifdef USE_OPENSSL
-#include "../../external/openssl/sha.h"
+#include "../../external/openssl/evp.h"
 #endif
 
 using namespace std;
