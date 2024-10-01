@@ -286,7 +286,7 @@ TIniSection *TInifile::SearchSection(const char *section)
 
 void TInifile::SetSection(const char *section)
 {
-	if (curSec && curSec != rootSec && !curSec->TopObj()) {	// 空セクション削除
+	if (curSec && curSec != rootSec && !curSec->TopObj()) {	// Remove empty sections
 		DelObj(curSec);
 		delete curSec;
 	}

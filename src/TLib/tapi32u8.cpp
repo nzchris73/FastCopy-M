@@ -366,7 +366,7 @@ UINT GetDriveTypeU8(const char *path)
 }
 
 /*=========================================================================
-	UCS2(W) - UTF-8(U8) - ANSI(A) 相互変換
+	UCS2(W) - UTF-8(U8) - ANSI(A) Mutual Conversion
 =========================================================================*/
 int WtoU8(const WCHAR *src, char *dst, int bufsize, int max_len)
 {

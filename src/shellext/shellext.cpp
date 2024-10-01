@@ -24,7 +24,7 @@ using namespace std;
 
 static ShellExtSystem	*SysObj = NULL;
 
-// レジストリ登録キー（Ref: tortoise subversion）
+// Registry key (Ref: tortoise subversion)
 static char	*DllRegKeys[] = {
 	"*\\shellex\\ContextMenuHandlers",
 	"*\\shellex\\DragDropHandlers",
@@ -102,7 +102,7 @@ DWORD DbgLogW(WCHAR *fmt,...)
 // from utility.cpp in fastcopy main
 BOOL GetRootDirW(const WCHAR *path, WCHAR *root_dir)
 {
-	if (path[0] == '\\') {	// "\\server\volname\" 4つ目の \ を見つける
+	if (path[0] == '\\') {	// "\\server\volname\" find the fourth \
 		DWORD	ch;
 		int		backslash_cnt = 0, offset;
 
@@ -112,11 +112,11 @@ BOOL GetRootDirW(const WCHAR *path, WCHAR *root_dir)
 			}
 		}
 		memcpy(root_dir, path, offset * sizeof(WCHAR));
-		if (backslash_cnt < 4)					// 4つの \ がない場合は、末尾に \ を付与
+		if (backslash_cnt < 4)					// If there are not four \ s, add \ to the end
 			root_dir[offset++] = '\\';	// （\\server\volume など）
 		root_dir[offset] = 0;	// NULL terminate
 	}
-	else {	// "C:\" 等
+	else {	// "C:\" etc.
 		memcpy(root_dir, path, 3 * sizeof(WCHAR));
 		root_dir[3] = 0;	// NULL terminate
 	}
@@ -135,10 +135,10 @@ BOOL IsSameDrive(const WCHAR *path1, const WCHAR *path2)
 }
 
 /*=========================================================================
-  クラス ： ShellExt
-  概  要 ： シェル拡張クラス
-  説  明 ： 
-  注  意 ： 
+  Class: ShellExt
+  Overview: Shell extension class
+  Explanation:
+  Notes: 
 =========================================================================*/
 ShellExt::ShellExt(BOOL _isAdmin)
 {
@@ -329,12 +329,12 @@ STDMETHODIMP ShellExt::QueryContextMenu(HMENU hMenu, UINT iMenu, UINT cmdFirst, 
 		else mask_menu_flags &= ~SHEXT_RIGHT_PASTE;
 	}
 
-	// メニューアイテムの追加
+	// Add a menu item
 	if (mask_menu_flags && srcArray.Num() >= ((mask_menu_flags & SHEXT_RIGHT_PASTE) ? 0 : 1)) {
-//		DbgLogW(L" q2: flg=%x isCut=%d mask_menu_flags=%x src=%d dst=%d clip=%d\n", flg, isCut,
-//			mask_menu_flags, srcArray.Num(), dstArray.Num(), clipArray.Num());
+	// DbgLogW(L" q2: flg=%x isCut=%d mask_menu_flags=%x src=%d dst=%d clip=%d\n", flg, isCut,
+	// mask_menu_flags, srcArray.Num(), dstArray.Num(), clipArray.Num());
 
-//		if (!is_dd && is_separator)
+	// if (!is_dd && is_separator)
 			::InsertMenu(hMenu, iMenu++, MF_SEPARATOR|MF_BYPOSITION, 0, 0);
 
 		if (is_separator)
@@ -511,10 +511,10 @@ STDMETHODIMP_(ULONG) ShellExt::Release()
 
 
 /*=========================================================================
-  クラス ： ShellExtClassFactory
-  概  要 ： シェル拡張クラス
-  説  明 ： 
-  注  意 ： 
+  Class: ShellExtClassFactory
+  Overview: Shell extension class
+  Explanation:
+  Notes:
 =========================================================================*/
 ShellExtClassFactory::ShellExtClassFactory(BOOL _isAdmin)
 {
@@ -584,9 +584,9 @@ STDMETHODIMP_(ULONG) ShellExtClassFactory::Release()
 }
 
 /*=========================================================================
-Function:
+   Function:
    Overview: DLL Export function group
-   explanation :
+   Explanation :
    Note :
 =========================================================================*/
 STDAPI DllCanUnloadNow(void)
@@ -633,7 +633,7 @@ STDAPI DllRegisterServer(void)
 
 	TShellExtRegistry	reg(isAdminDll);
 
-// CLASSKEY 登録
+// Register CLASSKEY
 	if (reg.CreateClsKey()) {
 		reg.SetStr(NULL, isAdminDll ? FASTCOPY : FASTCOPYUSER);
 		if (reg.CreateKey("InProcServer32")) {
@@ -644,7 +644,7 @@ STDAPI DllRegisterServer(void)
 		reg.CloseKey();
 	}
 
-// 関連付け
+// Association
 	for (int i=0; DllRegKeys[i]; i++) {
 		if (reg.CreateKey(DllRegKeys[i])) {
 			if (reg.CreateKey(isAdminDll ? FASTCOPY : FASTCOPYUSER)) {
@@ -655,7 +655,7 @@ STDAPI DllRegisterServer(void)
 		}
 	}
 
-// NT系の追加
+// Add NT series
 	if (isAdminDll)  {
 		reg.ChangeTopKey(HKEY_LOCAL_MACHINE);
 		if (reg.OpenKey(REG_SHELL_APPROVED)) {
@@ -670,10 +670,10 @@ STDAPI DllUnregisterServer(void)
 {
 	TShellExtRegistry	reg(isAdminDll);
 
-// CLASS_KEY 削除
+// Delete CLASS_KEY
 	reg.DeleteClsKey();
 
-// 関連付け 削除
+// Remove association
 	for (int i=0; DllRegKeys[i]; i++) {
 		if (reg.OpenKey(DllRegKeys[i])) {
 			reg.DeleteChildTree(isAdminDll ? FASTCOPY : FASTCOPYUSER);
@@ -681,16 +681,16 @@ STDAPI DllUnregisterServer(void)
 		}
 	}
 
-// 旧バージョン用 (.lnk 専用)
+// For older versions (.lnk only)
 	TShellExtRegistry	linkreg(isAdminDll, TRUE);
 	linkreg.DeleteClsKey();
 
-// NT系の追加
+// Add NT series
 	if (isAdminDll)  {
 		reg.ChangeTopKey(HKEY_LOCAL_MACHINE);
 		if (reg.OpenKey(REG_SHELL_APPROVED)) {
 			reg.DeleteValue(reg.clsId);
-			reg.DeleteValue(linkreg.clsId);	// 旧バージョン用 (.lnk 専用)
+			reg.DeleteValue(linkreg.clsId);	// For older versions (.lnk only)
 			reg.CloseKey();
 		}
 	}
@@ -711,10 +711,10 @@ STDAPI DllUnregisterServerUser()
 }
 
 /*=========================================================================
-  関  数 ： FastCopy 用 export 関数
-  概  要 ： 
-  説  明 ： 
-  注  意 ： 
+  Function: Export function for FastCopy
+  Overview: 
+  Explanation:
+  Notes:
 =========================================================================*/
 BOOL WINAPI SetMenuFlags(BOOL isAdmin, int flags)
 {
@@ -857,7 +857,7 @@ BOOL TShellExtRegistry::DeleteClsKey()
 {
 	BOOL ret = FALSE;
 	if (*clsId && OpenKey("CLSID")) {
-		ret = DeleteChildTree(clsId);	// CLASS_ROOT は clsIdEx で直接消せない…
+		ret = DeleteChildTree(clsId);	// CLASS_ROOT cannot be deleted directly with clsIdEx...
 		CloseKey();
 	}
 	return	ret;
@@ -901,7 +901,7 @@ ShellExtSystem::ShellExtSystem(HINSTANCE hI)
 		::DestroyIcon(hMenuIcon);
 	}
 
-// GetSystemDefaultLCID() に基づいたリソース文字列を事前にロードしておく
+// Preload resource strings based on GetSystemDefaultLCID()
 	LCID	curLcid = ::GetThreadLocale();
 	LCID	newLcid = ::GetSystemDefaultLCID();
 
@@ -939,10 +939,10 @@ ShellExtSystem::~ShellExtSystem()
 }
 
 /*=========================================================================
-  関  数 ： DllMain
-  概  要 ： 
-  説  明 ： 
-  注  意 ： 
+  Function: DllMain
+  Overview:
+  Explanation:
+  Notes:
 =========================================================================*/
 int APIENTRY DllMain(HINSTANCE hI, DWORD reason, PVOID)
 {

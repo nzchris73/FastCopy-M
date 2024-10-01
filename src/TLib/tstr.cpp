@@ -12,7 +12,7 @@
 #include "tlib.h"
 
 /*=========================================================================
-	パス合成（ANSI 版）
+	Path Compositing (ANSI version)
 =========================================================================*/
 int MakePath(char *dest, const char *dir, const char *file, int max_len)
 {
@@ -30,7 +30,7 @@ int MakePath(char *dest, const char *dir, const char *file, int max_len)
 	if (len > 0) {
 		bool	need_sep = (dest[len -1] != '\\');
 
-		if (len >= 2 && !need_sep) {	// 表などで終端の場合は sep必要
+		if (len >= 2 && !need_sep) {	// If it is the end of a table, sep is required
 			BYTE	*p = (BYTE *)dest;
 			while (*p) {
 				if (IsDBCSLeadByte(*p) && *(p+1)) {
@@ -51,7 +51,7 @@ int MakePath(char *dest, const char *dir, const char *file, int max_len)
 }
 
 /*=========================================================================
-	パス合成（UTF-8 版）
+	Path composition (UTF-8 version)
 =========================================================================*/
 int MakePathU8(char *dest, const char *dir, const char *file, int max_len)
 {
@@ -73,7 +73,7 @@ int MakePathU8(char *dest, const char *dir, const char *file, int max_len)
 }
 
 /*=========================================================================
-	パス合成（UNICODE 版）
+	Path composition (UNICODE version)
 =========================================================================*/
 int MakePathW(WCHAR *dest, const WCHAR *dir, const WCHAR *file, int max_len)
 {
@@ -465,7 +465,7 @@ int vsnwprintfz(WCHAR *buf, int wsize, const WCHAR *fmt, va_list ap)
 }
 
 /*
-	nul文字を必ず付与する strcpy かつ return は 0 を除くコピー文字数
+	strcpy always appends a nul character and return is the number of characters copied excluding 0
 */
 int strcpyz(char *dest, const char *src)
 {
@@ -490,7 +490,7 @@ int wcscpyz(WCHAR *dest, const WCHAR *src)
 }
 
 /*
-	nul文字を必ず付与する strncpy かつ return は 0 を除くコピー文字数
+	strncpy always appends a nul character and return the number of characters copied excluding 0
 */
 int strncpyz(char *dest, const char *src, int num)
 {
@@ -597,10 +597,10 @@ int ReplaceCharW(WCHAR *s, WCHAR rep_in, WCHAR rep_out, int max_len)
 
 
 /*=========================================================================
-	拡張 strtok()
-		"" に出くわすと、"" の中身を取り出す
-		token の前後に空白があれば取り除く
-		それ以外は、strtok_r() と同じ
+	Extended strtok()
+		When it encounters "", it extracts the contents of ""
+		If there is whitespace before and after the token, it is removed
+		Otherwise, it is the same as strtok_r()
 =========================================================================*/
 WCHAR *strtok_pathW(WCHAR *str, const WCHAR *sep, WCHAR **p, BOOL remove_quote)
 {
@@ -615,18 +615,18 @@ WCHAR *strtok_pathW(WCHAR *str, const WCHAR *sep, WCHAR **p, BOOL remove_quote)
 	if (!*p)
 		return	NULL;
 
-	// 頭だし
+	// Start from the beginning
 	while (str[0] && (wcschr(sep, str[0]) || str[0] == ' '))
 		str++;
 	if (str[0] == 0)
 		return	NULL;
 
-	// 終端検出
+	// End detection
 	WCHAR	*in = str, *out = str;
 	for ( ; in[0]; in++) {
 		BOOL	is_set = FALSE;
 
-		if (sep == org_sep) {	// 通常 mode
+		if (sep == org_sep) {	// Normal mode
 			if (wcschr(sep, in[0])) {
 				break;
 			}
@@ -634,7 +634,7 @@ WCHAR *strtok_pathW(WCHAR *str, const WCHAR *sep, WCHAR **p, BOOL remove_quote)
 				if (!remove_quote) {
 					is_set = TRUE;
 				}
-				sep = quote;	// quote mode に遷移
+				sep = quote;	// Switch to quote mode
 			}
 			else {
 				is_set = TRUE;
@@ -642,7 +642,7 @@ WCHAR *strtok_pathW(WCHAR *str, const WCHAR *sep, WCHAR **p, BOOL remove_quote)
 		}
 		else {					// quote mode
 			if (in[0] == '"') {
-				sep = org_sep;	// 通常 mode に遷移
+				sep = org_sep;	// Transition to normal mode
 				if (!remove_quote) {
 					is_set = TRUE;
 				}
@@ -659,7 +659,7 @@ WCHAR *strtok_pathW(WCHAR *str, const WCHAR *sep, WCHAR **p, BOOL remove_quote)
 	*p = in[0] ? in+1 : NULL;
 	out[0] = 0;
 
-	// 末尾の空白を取り除く
+	// Remove trailing spaces
 	for (out--; out >= str && out[0] == ' '; out--)
 		out[0] = 0;
 
@@ -667,8 +667,8 @@ WCHAR *strtok_pathW(WCHAR *str, const WCHAR *sep, WCHAR **p, BOOL remove_quote)
 }
 
 /*=========================================================================
-	コマンドライン解析（CommandLineToArgvW API の ANSI版）
-		CommandLineToArgvW() と同じく、返り値の開放は呼び元ですること
+	Command line parsing (ANSI version of CommandLineToArgvW API)
+		As with CommandLineToArgvW(), the caller must free the return value.
 =========================================================================*/
 WCHAR **CommandLineToArgvExW(WCHAR *cmdLine, int *_argc)
 {

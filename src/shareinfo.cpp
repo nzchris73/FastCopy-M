@@ -118,7 +118,7 @@ bool ShareInfo::TakeExclusive(uint64 use_drives, int max_running, int force_mode
 
 	Checking(cur, use_drives, &ci);
 
-	if (ci.self_idx == -1 && hSelfMutex || ci.self_idx >= 0 && !hSelfMutex) {	// 不整合検出
+	if (ci.self_idx == -1 && hSelfMutex || ci.self_idx >= 0 && !hSelfMutex) {	// Inconsistency detection
 		ReleaseExclusiveCore();
 	}
 	if (!hSelfMutex) {
@@ -135,9 +135,9 @@ bool ShareInfo::TakeExclusive(uint64 use_drives, int max_running, int force_mode
 	data.last		= cur;
 	data.mutexCount	= selfCount;
 
-	// force_mode == 0: 使用driveを占有＆max_run以下＆他に待ちが居ないなら TAKE
-	// force_mode == 1: 常に TAKE
-	// force_mode == 2: max_running以下の場合、常にTAKE
+	// force_mode == 0: If the drive is occupied, max_run is less than max_run, and there is no other user waiting, TAKE
+	// force_mode == 1: always TAKE
+	// force_mode == 2: always TAKE if max_running or less
 	data.mode = selfMode = (force_mode == 1 || (ci.all_running < max_running &&
 		(force_mode == 2 || (ci.tgt_running == 0 &&
 			(ci.wait_top_idx == -1 || ci.self_idx < ci.wait_top_idx)))))
@@ -254,7 +254,7 @@ uint64 ShareInfo::CleanupList(DWORD cur)
 			MakeMutexName(mutex, data.mutexCount);
 			HANDLE	hMutex = ::OpenMutex(SYNCHRONIZE, FALSE, mutex);
 
-			if (!hMutex) {	// 存在確認できなかったときはエントリをクリア
+			if (!hMutex) {	// If existence cannot be confirmed, clear the entry.
 				head->total--;
 				memmove(head->data +i, head->data +i+1, (head->total-i) * sizeof(data));
 				continue;

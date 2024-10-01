@@ -181,7 +181,7 @@ enum	FilterRes { FR_NONE=0, FR_UNMATCH, FR_MATCH, FR_CONT };
 struct FileStat {
 	int64		fileID;
 	HANDLE		hFile;
-	WCHAR		*upperName;		// cFileName 終端+1を指す
+	WCHAR		*upperName;		// Point to the end of cFileName + 1
 	FILETIME	ftCreationTime;
 	FILETIME	ftLastAccessTime;
 	FILETIME	ftLastWriteTime;

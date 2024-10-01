@@ -18,14 +18,14 @@ using namespace std;
 #include "shellext/shelldef.h"
 
 /*
-	About Dialog初期化処理
+	About Dialogue Initialisation Process
 */
 TAboutDlg::TAboutDlg(TWin *_parent) : TDlg(ABOUT_DIALOG, _parent)
 {
 }
 
 /*
-	Window 生成時の CallBack
+	CallBack when creating a Window
 */
 BOOL TAboutDlg::EvCreate(LPARAM lParam)
 {
@@ -158,10 +158,10 @@ BOOL TExecConfirmDlg::EvSize(UINT fwSizeType, WORD nWidth, WORD nHeight)
 
 
 /*=========================================================================
-  クラス ： BrowseDirDlgW
-  概  要 ： ディレクトリブラウズ用コモンダイアログ拡張クラス
-  説  明 ： SHBrowseForFolder のサブクラス化
-  注  意 ： 
+  Class: BrowseDirDlgW
+  Overview: Common dialogue extension class for directory browsing
+  Explanation: Subclass of SHBrowseForFolder
+  Notes:
 =========================================================================*/
 BOOL BrowseDirDlgW(TWin *parentWin, UINT editCtl, WCHAR *title, int flg)
 {
@@ -229,7 +229,7 @@ BOOL BrowseDirDlgW(TWin *parentWin, UINT editCtl, WCHAR *title, int flg)
 			if (dirDlg.Exec()) {
 				if (fileBuf[0] == '\\') {
 					GetRootDirW(fileBuf, buf);
-					if (wcslen(buf) > wcslen(fileBuf)) { // netdrv root で末尾の \ がない
+					if (wcslen(buf) > wcslen(fileBuf)) { // No trailing \ in netdrv root
 						wcscpy(fileBuf, buf);
 					}
 				}
@@ -315,7 +315,7 @@ BOOL TBrowseDirDlgW::Exec()
 }
 
 /*
-	BrowseDirDlg用コールバック
+	Callback for BrowseDirDlg
 */
 int CALLBACK TBrowseDirDlgW::BrowseDirDlg_Proc(HWND hWnd, UINT uMsg, LPARAM lParam, LPARAM data)
 {
@@ -338,13 +338,13 @@ int CALLBACK TBrowseDirDlgW::BrowseDirDlg_Proc(HWND hWnd, UINT uMsg, LPARAM lPar
 }
 
 /*
-	BrowseDlg用サブクラス生成
+	Generate subclass for BrowseDlg
 */
 BOOL TBrowseDirDlgW::AttachWnd(HWND _hWnd)
 {
 	BOOL	ret = TSubClass::AttachWnd(_hWnd);
 
-// ディレクトリ設定
+	// Directory settings
 	DWORD	attr = ::GetFileAttributesW(fileBuf);
 	if (attr != 0xffffffff && (attr & FILE_ATTRIBUTE_DIRECTORY) == 0)
 		GetParentDirW(fileBuf, fileBuf);
@@ -353,7 +353,7 @@ BOOL TBrowseDirDlgW::AttachWnd(HWND _hWnd)
 	SendMessageW(BFFM_SETSELECTIONW, FALSE, (LPARAM)pidl);
 	ILFree(pidl);
 
-// ボタン作成
+	// Create a button
 	TRect	ok_rect;
 	::GetWindowRect(GetDlgItem(IDOK), &ok_rect);
 	POINT	pt = { ok_rect.left, ok_rect.top };
@@ -395,7 +395,7 @@ BOOL TBrowseDirDlgW::AttachWnd(HWND _hWnd)
 }
 
 /*
-	BrowseDlg用 WM_COMMAND 処理
+	WM_COMMAND handling for BrowseDlg
 */
 BOOL TBrowseDirDlgW::EvCommand(WORD wNotifyCode, WORD wID, LPARAM hwndCtl)
 {
@@ -494,7 +494,7 @@ BOOL TBrowseDirDlgW::SetFileBuf(LPARAM list)
 }
 
 /*
-	親ディレクトリ取得（必ずフルパスであること。UNC対応）
+	Get parent directory (must be a full path. UNC supported)
 */
 BOOL TBrowseDirDlgW::GetParentDirW(WCHAR *srcfile, WCHAR *dir)
 {
@@ -506,7 +506,7 @@ BOOL TBrowseDirDlgW::GetParentDirW(WCHAR *srcfile, WCHAR *dir)
 	if (fname - path > 3 || path[1] != ':')
 		fname[-1] = 0;
 	else
-		fname[0] = 0;		// C:\ の場合
+		fname[0] = 0;		// In the case of C:\
 
 	wcscpy(dir, path);
 	return	TRUE;
@@ -514,10 +514,10 @@ BOOL TBrowseDirDlgW::GetParentDirW(WCHAR *srcfile, WCHAR *dir)
 
 
 /*=========================================================================
-  クラス ： TInputDlg
-  概  要 ： １行入力ダイアログ
-  説  明 ： 
-  注  意 ： 
+  Class: TInputDlg
+  Overview: One-line input dialog
+  Explanation:
+  Notes:
 =========================================================================*/
 BOOL TInputDlg::EvCommand(WORD wNotifyCode, WORD wID, LPARAM hwndCtl)
 {
@@ -570,7 +570,7 @@ BOOL TConfirmDlg::EvCreate(LPARAM lParam)
 }
 
 /*
-	ファイルダイアログ用汎用ルーチン
+	General routines for file dialogues
 */
 #define MAX_OFNBUF	(MAX_WPATH * 4)
 
@@ -611,8 +611,8 @@ BOOL TOpenFileDlg::Exec(UINT editCtl, WCHAR *title, WCHAR *filter, WCHAR *defaul
 		int		dir_len = (int)wcslen(defaultDir);
 		int		offset = dir_len + 1;
 
-		if (w()[offset]) {  // 複数ファイル
-			if (w()[wcslen(w()) -1] != '\\') {	// ドライブルートのみ例外
+		if (w()[offset]) {  // Multiple files
+			if (w()[wcslen(w()) -1] != '\\') {	// Drive route is the only exception
 				w()[dir_len++] = '\\';
 			}
 			for (; w()[offset]; offset++) {
@@ -669,9 +669,9 @@ BOOL TOpenFileDlg::Exec(WCHAR *title, WCHAR *filter, WCHAR *_defaultDir)
 			}
 		}
 		else if (::GetFullPathNameW(w(), MAX_PATH, szDirName, &fname) && fname) {
-			fname[-1] = 0; // 親ディレクトリ取り出し
+			fname[-1] = 0; // Get the parent directory
 		}
-		w()[0] = 0; // ファイル名を空にしないとOFNがコケる…
+		w()[0] = 0; // If the file name is not empty, OFN will crash...
 	}
 	if (vbuf.Size() < MAX_OFNBUF * sizeof(WCHAR)) {
 		vbuf.AllocBuf(MAX_OFNBUF * sizeof(WCHAR));
@@ -802,7 +802,7 @@ BOOL CalcTextBoxSize(HDC hDc, const WCHAR *s, TSize *sz)
 
 
 /*
-	TOpenFileDlg用サブクラス生成
+	Creating a subclass for TOpenFileDlg
 */
 BOOL TOpenFileDlg::AttachWnd(HWND _hWnd)
 {
@@ -859,7 +859,7 @@ BOOL TOpenFileDlg::EventApp(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		SendMessage(WM_GETMINMAXINFO, 0, (LPARAM)&mi);
 		int		base_size = mi.ptMinTrackSize.x;
 
-	// ボタン作成
+		// Create a button
 		TSize	sz;
 		HFONT	hFont = (HFONT)SendDlgItemMessage(IDOK, WM_GETFONT, 0, 0L);
 		HDC		hDc = ::GetDC(hWnd);
@@ -887,7 +887,7 @@ BOOL TOpenFileDlg::EventApp(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		::BringWindowToTop(hBtn);
 
-		// 子ウィンドウ同士のクリップを有効に
+		// Enable clipping between child windows
 		for (HWND hTmp=GetWindow(hWnd, GW_CHILD); hTmp; hTmp=::GetWindow(hTmp, GW_HWNDNEXT)) {
 			::SetWindowLong(hTmp, GWL_STYLE, ::GetWindowLong(hTmp, GWL_STYLE)|WS_CLIPSIBLINGS);
 		}
@@ -898,7 +898,7 @@ BOOL TOpenFileDlg::EventApp(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 /*
-	BrowseDlg用 WM_COMMAND 処理
+	WM_COMMAND handling for BrowseDlg
 */
 BOOL TOpenFileDlg::EvCommand(WORD wNotifyCode, WORD wID, LPARAM hwndCtl)
 {
@@ -916,7 +916,7 @@ BOOL TOpenFileDlg::EvCommand(WORD wNotifyCode, WORD wID, LPARAM hwndCtl)
 }
 
 /*
-	Job Dialog初期化処理
+	Job Dialogue initialisation process
 */
 TJobDlg::TJobDlg(Cfg *_cfg, TMainDlg *_parent) : TDlg(JOB_DIALOG, _parent)
 {
@@ -925,7 +925,7 @@ TJobDlg::TJobDlg(Cfg *_cfg, TMainDlg *_parent) : TDlg(JOB_DIALOG, _parent)
 }
 
 /*
-	Window 生成時の CallBack
+	CallBack when creating a Window
 */
 BOOL TJobDlg::EvCreate(LPARAM lParam)
 {
@@ -1081,7 +1081,7 @@ BOOL TJobDlg::DelJob()
 }
 
 /*
-	終了処理設定ダイアログ
+	Exit process settings dialogue
 */
 TFinActDlg::TFinActDlg(Cfg *_cfg, TMainDlg *_parent) : TDlg(FINACTION_DIALOG, _parent)
 {
@@ -1305,7 +1305,7 @@ TMsgBox::~TMsgBox()
 }
 
 /*
-	Window 生成時の CallBack
+	CallBack when creating a Window
 */
 BOOL TMsgBox::EvCreate(LPARAM lParam)
 {
@@ -1404,7 +1404,7 @@ UINT TFinDlg::Exec(int _sec, DWORD mainmsg_id)
 
 
 /*
-	Window 生成時の CallBack
+	CallBack when creating a Window
 */
 BOOL TFinDlg::EvCreate(LPARAM lParam)
 {
@@ -1508,8 +1508,8 @@ BOOL TListHeader::ChangeFontNotify()
 }
 
 /*
-	listview control の subclass化
-	Focus を失ったときにも、選択色を変化させないための小細工
+	Subclassing listview control
+	A trick to keep the selection colour from changing when focus is lost
 */
 #define INVALID_INDEX	-1
 TListViewEx::TListViewEx(TWin *_parent) : TSubClassCtl(_parent)
@@ -1548,7 +1548,7 @@ BOOL TListViewEx::EventFocus(UINT uMsg, HWND hFocusWnd)
 			SendMessage(LVM_SETITEMSTATE, itemNo, (LPARAM)&lvi);
 			focus_index = itemNo;
 		}
-		return	TRUE;	// WM_KILLFOCUS は伝えない
+		return	TRUE;	// WM_KILLFOCUS is not propagated.
 	}
 }
 
@@ -1589,7 +1589,7 @@ BOOL TListViewEx::EventUser(UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 /*
-	edit control の subclass化
+	Subclassing edit controls
 */
 TEditSub::TEditSub(TWin *_parent) : TSubClassCtl(_parent)
 {
@@ -1711,7 +1711,7 @@ BOOL TSrcEdit::AttachWnd(HWND _hWnd)
 	::GetObject((HFONT)SendMessage(WM_GETFONT, 0, 0L), sizeof(lf), (void *)&lf);
 
 	marginCy = 10;
-	baseCy = abs(lf.lfHeight); // 暫定...
+	baseCy = abs(lf.lfHeight); // preliminary...
 	if (baseCy == 11) {
 		baseCy += 2;
 	}

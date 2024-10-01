@@ -279,7 +279,7 @@ BOOL TMainDlg::WriteLogFooter(HANDLE hFile)
 	str1 = (LPSTR)buf1;
 	str1 = isUtf8Log ? AtoU8s(str1) : str1;
 	len += sprintf(buf + len, "%s", str1);
-	//len += GetDlgItemText(STATUS_EDIT, buf + len, sizeof(buf) - len); //记录速度信息等
+	//len += GetDlgItemText(STATUS_EDIT, buf + len, sizeof(buf) - len);
 
 	len += sprintf(buf + len, "\r\n\r\n%s : "
 		, cfg.isUtf8Log ? AtoU8s(LoadStr(IDS_Log_Result)) : LoadStr(IDS_Log_Result) //Result
@@ -289,7 +289,7 @@ BOOL TMainDlg::WriteLogFooter(HANDLE hFile)
 	str2 = (LPSTR)buf2;
 	str2 = isUtf8Log ? AtoU8s(str2) : str2;
 	len += sprintf(buf + len, "%s", str2);
-	//len += GetDlgItemText(ERRSTATUS_STATIC, buf + len, sizeof(buf) - len); //错误个数
+	//len += GetDlgItemText(ERRSTATUS_STATIC, buf + len, sizeof(buf) - len);
 
 	len += sprintf(buf + len, "%s", "\r\n\r\n");
 	::WriteFile(hFile, buf, len, &len, 0);

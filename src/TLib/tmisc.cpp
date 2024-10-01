@@ -55,7 +55,7 @@ static LCID defaultLCID;
 #pragma comment (lib, "Netapi32.lib")
 
 /*=========================================================================
-Class : Condition
+  Class : Condition
   Overview: Condition variable class
   explanation : 
   Note :
@@ -230,7 +230,7 @@ void Condition::Notify(void)	// currently wakes up all sleeping threads
 
 
 /*=========================================================================
-Class: VBuf
+  Class: VBuf
   Overview: Virtual memory management class
   explanation : 
   Note :

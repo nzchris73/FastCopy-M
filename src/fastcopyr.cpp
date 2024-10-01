@@ -224,7 +224,7 @@ FilterRes FastCopy::FilterCheck(WCHAR *dir, int dir_len, DWORD attr, const WCHAR
 	int		depthNum = (int)depthVec.UsedNum() - depthIdxOffset;
 	int		depthIdx = depthNum - 1;
 
-	// excludeフィルタ
+	// exclude filter
 	if ((filterMode & FilterBits(file_dir_idx, EXC_REG))) {
 		RegExpVec	&excRel = regExpVec[file_dir_idx][EXC_REG][REL_REG];
 		RegExpVec	&excAbs = regExpVec[file_dir_idx][EXC_REG][ABS_REG];
@@ -380,8 +380,8 @@ BOOL FastCopy::IsSameContents(FileStat *srcStat, FileStat *dstStat)
 	}
 	else {
 		curTotal->rErrFiles++;
-//		PutList(src + srcPrefixLen, PL_COMPARE|PL_NOADD, 0, srcDigest.val);
-//		PutList(confirmDst + dstPrefixLen, PL_COMPARE|PL_NOADD, 0, dstDigest.val);
+	// PutList(src + srcPrefixLen, PL_COMPARE|PL_NOADD, 0, srcDigest.val);
+	// PutList(confirmDst + dstPrefixLen, PL_COMPARE|PL_NOADD, 0, dstDigest.val);
 		if (src_ret && dst_ret) {
 			WCHAR	buf[512];
 			MakeVerifyStr(buf, srcDigest.val, dstDigest.val, dstDigest.GetDigestSize());
@@ -516,13 +516,13 @@ FastCopy::LinkStatus FastCopy::CheckHardLink(WCHAR *path, int len, HANDLE hFileO
 	LinkStatus	ret = LINK_ERR;
 	DWORD		share = FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE;
 
-	//DebugW(L"CreateFile(CheckHardLink) %d %s\n", isExec, path);
+	// DebugW(L"CreateFile(CheckHardLink) %d %s\n", isExec, path);
 
 	if (hFileOrg == INVALID_HANDLE_VALUE) {
 		hFile = ::CreateFileW(path, 0, share, 0, OPEN_EXISTING,
 			(enableBackupPriv ? FILE_FLAG_BACKUP_SEMANTICS : 0), 0);
 		if (hFile == INVALID_HANDLE_VALUE){
-//			DBGWriteW(L"CheckHardLink can't open(%s) %d\n", path);
+	// DBGWriteW(L"CheckHardLink can't open(%s) %d\n", path);
 			return	ret;
 		}
 	}
@@ -543,8 +543,8 @@ FastCopy::LinkStatus FastCopy::CheckHardLink(WCHAR *path, int len, HANDLE hFileO
 		if (!(obj = (LinkObj *)hardLinkList.Search(data, hash_id))) {
 			if ((obj = new LinkObj(path + srcBaseLen, bhi.nNumberOfLinks, data, len))) {
 				hardLinkList.Register(obj, hash_id);
-//				DBGWriteW(L"CheckHardLink %08x.%08x.%08x register (%s) %d\n", data[0], data[1],
-//				data[2], path + srcBaseLen, bhi.nNumberOfLinks);
+				// DBGWriteW(L"CheckHardLink %08x.%08x.%08x register (%s) %d\n", data[0], data[1],
+				// data[2], path + srcBaseLen, bhi.nNumberOfLinks);
 				ret = LINK_REGISTER;
 			}
 			else {
@@ -553,8 +553,8 @@ FastCopy::LinkStatus FastCopy::CheckHardLink(WCHAR *path, int len, HANDLE hFileO
 		}
 		else {
 			ret = LINK_ALREADY;
-//			DBGWriteW(L"CheckHardLink %08x.%08x.%08x already %s (%s) %d\n", data[0], data[1],
-//			data[2], path + srcBaseLen, obj->path, bhi.nNumberOfLinks);
+			// DBGWriteW(L"CheckHardLink %08x.%08x.%08x already %s (%s) %d\n", data[0], data[1],
+			// data[2], path + srcBaseLen, obj->path, bhi.nNumberOfLinks);
 		}
 	}
 	else {
@@ -629,7 +629,7 @@ BOOL FastCopy::ReadProcDirEntry(int dir_len, int dirst_start, BOOL confirm_dir, 
 		}
 	}
 
-	//Directory processing
+	// Directory processing
 	isRename = FALSE;	// Disabled below top level
 	for (FileStat *srcStat = (FileStat *)(dirStatBuf.Buf() + dirst_start);
 			srcStat < statEnd; srcStat = (FileStat *)((BYTE *)srcStat + srcStat->size)) {
@@ -734,7 +734,7 @@ FastCopy::ReqHead *FastCopy::GetDirExtData(FileStat *stat)
 	DWORD	flg = FILE_FLAG_BACKUP_SEMANTICS | (is_reparse ? FILE_FLAG_OPEN_REPARSE_POINT : 0);
 	ReqHead	*req=NULL;
 
-	//DebugW(L"CreateFile(GetDirExtData) %d %s\n", isExec, src);
+	// DebugW(L"CreateFile(GetDirExtData) %d %s\n", isExec, src);
 
 	fh = ::CreateFileW(src, mode, share, 0, OPEN_EXISTING, flg , 0);
 	if (fh == INVALID_HANDLE_VALUE) {
@@ -881,7 +881,7 @@ inline bool in_newer_grace(int64 stm, int64 dtm, int64 grace)
 	return	 dtm >= stm_min;
 }
 
-#define DLSVT_DIFF	(60LL * 60 * 1000 * 1000 * 10)	// 1時間(100ns単位)
+#define DLSVT_DIFF	(60LL * 60 * 1000 * 1000 * 10)	// 1 hour (100ns unit)
 
 inline bool in_dlsvt_grace(int64 stm, int64 dtm, int64 grace)
 {
@@ -931,7 +931,7 @@ BOOL FastCopy::IsOverWriteFile(FileStat *srcStat, FileStat *dstStat)
 
 	if (info.overWrite == BY_ATTR) {
 		if (dstStat->FileSize() == srcStat->FileSize()) {	// Equal sizes and...
-			//Do not update if update date is the same
+			// Do not update if update date is the same
 			if (in_grace(stm, dtm, grace)) {
 				return	FALSE;
 			}
@@ -960,7 +960,7 @@ BOOL FastCopy::IsOverWriteFile(FileStat *srcStat, FileStat *dstStat)
 
 
 /*=========================================================================
-Function: OpenFileProc / OpenThread
+   Function: OpenFileProc / OpenThread
    Overview: Open processing
    explanation : 
    Note :
@@ -1066,7 +1066,7 @@ BOOL FastCopy::OpenFileProcCore(WCHAR *path, FileStat *stat, int dir_len, int na
 		if (is_reparse) {
 			flg |= FILE_FLAG_OPEN_REPARSE_POINT;
 		}
-		//DebugW(L"CreateFile(OpenFileProc) %d %s\n", isExec, patrh);
+		// DebugW(L"CreateFile(OpenFileProc) %d %s\n", isExec, patrh);
 
 		if ((stat->hFile = ::CreateFileW(path, mode, share, 0, OPEN_EXISTING, flg, 0))
 				== INVALID_HANDLE_VALUE) {
@@ -1269,7 +1269,7 @@ BOOL FastCopy::OpenFileBackupStreamCore(WCHAR *path, int src_len, int64 size, WC
 	memcpy(subStat->cFileName, altname, altnamesize + sizeof(WCHAR));
 	memcpy(path + src_len, subStat->cFileName, altnamesize + sizeof(WCHAR));
 
-	//DebugW(L"CreateFile(OpenFileBackupStreamCore) %d %s\n", isExec, path);
+	// DebugW(L"CreateFile(OpenFileBackupStreamCore) %d %s\n", isExec, path);
 
 	if ((subStat->hFile = ::CreateFileW(path,
 			GENERIC_READ|READ_CONTROL|acsSysSec,
@@ -1329,8 +1329,8 @@ BOOL FastCopy::CloseMultiFilesProc(int maxCnt)
 	return	!isAbort;
 }
 
-//BOOL rand_err()
-//{
+// BOOL rand_err()
+// {
 //	static int cnt=0;
 //	if ((++cnt % 3) == 0) {
 //		SetLastError(ERROR_INVALID_PARAMETER);
@@ -1776,7 +1776,7 @@ void FastCopy::FlushMoveListCore(MoveObj *data)
 			::SetFileAttributesW(data->path, FILE_ATTRIBUTE_NORMAL);
 			// ResetAcl()
 		}
-		//DebugW(L"flush delete(%d) %s\n", isExec, data->path + prefix_len);
+		// DebugW(L"flush delete(%d) %s\n", isExec, data->path + prefix_len);
 		if (isExec && ForceDeleteFileW(data->path, info.aclReset) == FALSE) {
 			curTotal->dErrFiles++;
 			ConfirmErr(L"DeleteFile(move)", data->path + prefix_len);
@@ -1920,7 +1920,7 @@ FastCopy::ReqHead *FastCopy::AllocReqBuf(int req_size, int64 _data_size, int64 f
 		&& align_offset + require_size + BIGTRANS_ALIGN + MINREMAIN_BUF > mainBuf.Size();
 
 	usedOffset = req->buf + require_size;
-	//Debug("off=%.1f size=%.1f\n", (double)align_offset / 1024, (double)sector_data_size / 1024);
+	// Debug("off=%.1f size=%.1f\n", (double)align_offset / 1024, (double)sector_data_size / 1024);
 
 	if (buf_remain) {
 		if (usedOffset < freeOffset) {
@@ -1987,7 +1987,7 @@ BOOL FastCopy::SendRequest(Command cmd, ReqHead *req, FileStat *stat)
 	if (req) {
 		if (!isAbort) {
 			ret = SendRequestCore(cmd, req, stat);
-			//DebugW(L"SendRequest(%x) %d %s\n", cmd, isExec, stat ? stat->cFileName : L"");
+			// DebugW(L"SendRequest(%x) %d %s\n", cmd, isExec, stat ? stat->cFileName : L"");
 		}
 		cv.Notify();
 	}

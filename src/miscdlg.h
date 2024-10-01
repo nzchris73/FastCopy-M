@@ -59,7 +59,7 @@ public:
 protected:
 	WCHAR		*fileBuf;
 	IMalloc		*iMalloc;
-	BROWSEINFOW	brInfo;		// W version との差は、文字ポインタ系メンバの型の違いのみ
+	BROWSEINFOW	brInfo;		// The only difference from the W version is the type of the character pointer members.
 	int			flg;
 	HWND		hBtn;
 

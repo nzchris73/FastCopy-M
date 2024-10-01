@@ -122,7 +122,7 @@ LRESULT TWin::WinProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (parent && parent->hWnd) {
 			parent->GetWindowRect(&pRect);
 		}
-		if (!EvNcDestroy()) {	// hWndを0にする前に呼び出す
+		if (!EvNcDestroy()) {	// Call this before setting hWnd to 0.
 			DefWindowProc(uMsg, wParam, lParam);
 		}
 		done = TRUE;
@@ -561,7 +561,7 @@ BOOL TWin::EvChar(WCHAR code, LPARAM keyData)
 BOOL TWin::EventScrollWrapper(UINT uMsg, int nCode, int nPos, HWND scrollBar)
 {
 	if (scrollHack) {
-		// 32bit対応スクロール変換
+		// 32-bit compatible scroll conversion
 		if (nCode == SB_THUMBTRACK || nCode == SB_THUMBPOSITION) {
 			SCROLLINFO	si = { sizeof(si), SIF_TRACKPOS };
 			if (::GetScrollInfo(hWnd, uMsg == WM_HSCROLL ? SB_HORZ : SB_VERT, &si)) {

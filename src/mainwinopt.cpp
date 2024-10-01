@@ -57,7 +57,7 @@ BOOL TMainDlg::SetCopyModeList(void)
 {
 	int	idx = cfg.copyMode;
 
-	if (copyInfo == NULL) {		// 初回コピーモードリスト作成
+	if (copyInfo == NULL) {		// Create initial copy mode list
 		for (int i=0; COPYINFO_LIST[i].resId; i++) {
 			COPYINFO_LIST[i].list_str = LoadStr(COPYINFO_LIST[i].resId);
 		}
@@ -106,9 +106,9 @@ BOOL TMainDlg::CommandLineExecW(int argc, WCHAR **argv)
 	WCHAR	*dst_path	= NULL;
 	PathArray pathArray;
 
-	argc--, argv++;		// 実行ファイル名は skip
+	argc--, argv++;		// Executable file name is skipped
 
-	for (int i = 0; i < argc && argv[i][0] == '/'; i++) {	// /no_ui だけは先に検査
+	for (int i = 0; i < argc && argv[i][0] == '/'; i++) {	// Check only /no_ui first
 		if (wcsicmpEx(argv[i], NOUI_STR, &len) == 0) {
 			isNoUI = GetArgOpt(argv[i] + len, TRUE);
 		}
@@ -123,7 +123,7 @@ BOOL TMainDlg::CommandLineExecW(int argc, WCHAR **argv)
 				return	FALSE;
 			}
 
-			// コマンドモードを選択
+			// Select the command mode
 			SendDlgItemMessage(MODE_COMBO, CB_SETCURSEL, idx, 0);
 		}
 		else if (wcsicmpEx(*argv, JOB_STR, &len) == 0) {
@@ -373,10 +373,10 @@ BOOL TMainDlg::CommandLineExecW(int argc, WCHAR **argv)
 
 			if ((argv = CommandLineToArgvExW(shellExtBuf.WBuf(), &argc)) == NULL)
 				break;
-			continue;	// 再 parse
+			continue;	// Re-parse
 		}
 		else if (wcsicmpEx(*argv, NOUI_STR, &len) == 0) {
-			// すでに確認済み
+			// Already checked
 		}
 		else {
 			MessageBoxW(FmtW(L"%s is not recognized.\r\n%s", *argv,
@@ -386,7 +386,7 @@ BOOL TMainDlg::CommandLineExecW(int argc, WCHAR **argv)
 		argc--, argv++;
 	}
 
-	// /no_ui の場合、UI系の確認をキャンセル
+	// /no_ui cancels UI checks
 	if (isNoUI) noConfirmDel = noConfirmStop = TRUE;
 
 	is_delete = GetCopyMode() == FastCopy::DELETE_MODE;
@@ -436,7 +436,7 @@ BOOL TMainDlg::CommandLineExecW(int argc, WCHAR **argv)
 		if (srcEdit.GetWindowTextLengthW() == 0
 		|| (!is_delete && ::GetWindowTextLengthW(GetDlgItem(DST_COMBO)) == 0)) {
 			is_noexec = TRUE;
-			if (shellMode != SHELL_NONE)	// コピー先の無い shell起動時は、autoclose を無視する
+			if (shellMode != SHELL_NONE)	// When starting a shell without a copy destination, ignore autoclose
 				autoCloseLevel = NO_CLOSE;
 		}
 

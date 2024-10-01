@@ -148,7 +148,7 @@ void TInetRequestAsync(LPCSTR host, LPCSTR path, BYTE *data, int data_len, HWND 
 void TInetAsync(LPCSTR host, LPCSTR path, HWND hWnd, UINT uMsg, int64 id)
 {
 	TInetRequestAsync(host, path, NULL, 0, hWnd, uMsg, id,
-		(IsWinVista() ? INETREQ_SECURE : 0)|INETREQ_GET); // XPはhttps://ipmsg.orgに接続できない
+		(IsWinVista() ? INETREQ_SECURE : 0)|INETREQ_GET); // XP can't connect to https://ipmsg.org
 }
 
 BOOL TInetCrackUrl(LPCSTR url, U8str *host, U8str *path, int *port, BOOL *is_sec)

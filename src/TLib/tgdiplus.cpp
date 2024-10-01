@@ -75,7 +75,7 @@ BOOL TGif::Init(int resId)
 
 BOOL TGif::GetInfo()
 {
-	// 真面目にやるなら img->GetFrameDimensionsCount();
+	// If you're serious, use img->GetFrameDimensionsCount();
 	if (!img) return FALSE;
 
 	img->GetFrameDimensionsList(&guid, 1);

@@ -106,7 +106,7 @@ BOOL TMainDlg::EvCreate(LPARAM lParam)
 
 	TaskBarCreateMsg = ::RegisterWindowMessage("TaskbarCreated");
 
-	// メッセージセット
+	// Message set
 	SetDlgItemText(STATUS_EDIT, LoadStr(IDS_BEHAVIOR));
 	SetDlgItemInt(BUFSIZE_EDIT, cfg.bufSize);
 
@@ -126,13 +126,13 @@ BOOL TMainDlg::EvCreate(LPARAM lParam)
 	SendDlgItemMessage(PATH_EDIT,   EM_SETWORDBREAKPROC, 0, (LPARAM)EditWordBreakProcW);
 	SendDlgItemMessage(ERR_EDIT,    EM_SETWORDBREAKPROC, 0, (LPARAM)EditWordBreakProcW);
 
-	SendDlgItemMessage(PATH_EDIT,   EM_SETTARGETDEVICE, 0, 0);		// 折り返し
-	SendDlgItemMessage(ERR_EDIT,    EM_SETTARGETDEVICE, 0, 0);		// 折り返し
+	SendDlgItemMessage(PATH_EDIT,   EM_SETTARGETDEVICE, 0, 0);		// Wrap
+	SendDlgItemMessage(ERR_EDIT,    EM_SETTARGETDEVICE, 0, 0);		// Wrap
 
 	SendDlgItemMessage(PATH_EDIT,   EM_LIMITTEXT, 0, 0);
 	SendDlgItemMessage(ERR_EDIT,    EM_LIMITTEXT, 0, 0);
 
-	// スライダコントロール
+	// Slider control
 	speedSlider.AttachWnd(GetDlgItem(SPEED_SLIDER));
 	speedSlider.SendMessage(TBM_SETRANGE, FALSE, MAKELONG(SPEED_SUSPEND, SPEED_FULL));
 	speedSlider.CreateTipWnd(LoadStrW(IDS_SPEEDTIP));
@@ -160,10 +160,10 @@ BOOL TMainDlg::EvCreate(LPARAM lParam)
 		(LPARAM)::LoadIcon(TApp::hInst(), (LPCSTR)HIST_ICON));
 
 #ifdef USE_LISTVIEW
-	// リストビュー関連
+	// List view related
 #endif
 
-	// 履歴セット
+	// History set
 	SetPathHistory(SETHIST_EDIT);
 //	SetFilterHistory(SETHIST_LIST);
 	if (cfg.maxHistory > 0) {
@@ -194,7 +194,7 @@ BOOL TMainDlg::EvCreate(LPARAM lParam)
 
 	// command line mode
 	if (orgArgc > 1) {
-		// isRunAsParent の場合は、Child側からの CLOSE を待つため、自主終了しない
+		// In the case of isRunAsParent, it will not terminate autonomously because it will wait for a CLOSE from the Child side.
 		if (!CommandLineExecW(orgArgc, orgArgv) &&
 			(shellMode == SHELL_NONE || autoCloseLevel >= NOERR_CLOSE) && !isRunAsParent) {
 			resultStatus = FALSE;
@@ -215,7 +215,7 @@ BOOL TMainDlg::EvCreate(LPARAM lParam)
 		if (cfg.updCheck & 0x1) {	// 最新版確認
 			time_t	now = time(NULL);
 
-			if (cfg.lastUpdCheck + (24 * 3600) < now || cfg.lastUpdCheck > now) {	// 1日以上経過
+			if (cfg.lastUpdCheck + (24 * 3600) < now || cfg.lastUpdCheck > now) {	// More than one day has passed
 				cfg.lastUpdCheck = now;
 				cfg.WriteIni();
 				UpdateCheck(TRUE);
@@ -405,7 +405,7 @@ BOOL TMainDlg::EvCommand(WORD wNotifyCode, WORD wID, LPARAM hwndCtl)
 	case OPENDIR_MENUITEM:
 		{
 			WCHAR	dir[MAX_PATH];
-			MakePathW(dir, cfg.userDir, L"");	// 末尾に \\ がないと exeが開く環境あり…
+			MakePathW(dir, cfg.userDir, L"");	// In some environments, the exe will open if there is no \\ at the end...
 			::ShellExecuteW(NULL, NULL, dir, 0, 0, SW_SHOW);
 		}
 		return	TRUE;
@@ -724,7 +724,7 @@ BOOL TMainDlg::EvDropFiles(HDROP hDrop)
 	BOOL	isDeleteMode = GetCopyMode() == FastCopy::DELETE_MODE;
 	int		max = isDstDrop ? 1 : ::DragQueryFileW(hDrop, 0xffffffff, 0, 0), max_len;
 
-	// CTL が押されている場合、現在の内容を加算
+	// If CTL is down, add the current content
 	if (!isDstDrop) {
 		if (::GetKeyState(VK_CONTROL) & 0x8000) {
 			max_len = srcEdit.GetWindowTextLengthW() + 1;
@@ -746,7 +746,7 @@ BOOL TMainDlg::EvDropFiles(HDROP hDrop)
 		}
 
 		DWORD	attr = ::GetFileAttributesW(path);
-		if (attr & FILE_ATTRIBUTE_DIRECTORY) {	// 0xffffffff も認める(for 95系OSのroot対策)
+		if (attr & FILE_ATTRIBUTE_DIRECTORY) {	// 0xffffffff is also accepted (for root protection on 95 OS)
 			MakePathW(path, NULL, L"");
 		}
 		pathArray.RegisterPath(path);
@@ -759,7 +759,7 @@ BOOL TMainDlg::EvDropFiles(HDROP hDrop)
 			SetDlgItemTextW(DST_COMBO, path);
 		}
 		else {
-			// 文字列連結用領域
+			// Area for string concatenation
 			auto buf = make_unique<WCHAR[]>(max_len = pathArray.GetMultiPathLen(CRLF, NULW, TRUE));
 			if (pathArray.GetMultiPath(buf.get(), max_len, CRLF, NULW, TRUE)) {
 				srcEdit.SetWindowTextW(buf.get());
@@ -797,7 +797,7 @@ BOOL TMainDlg::EventApp(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				FastCopy::Confirm	*confirm = (FastCopy::Confirm *)lParam;
 
 				::SetThreadExecutionState(ES_CONTINUOUS);
-				if (isNoUI) { // 本来ここには到達しないはずだが…
+				if (isNoUI) { // I shouldn't have ended up here...
 					WriteErrLogNoUI(WtoU8(confirm->message));
 					confirm->result = FastCopy::Confirm::CANCEL_RESULT;
 				}
@@ -982,7 +982,7 @@ BOOL TMainDlg::EvTimer(WPARAM timerID, TIMERPROC proc)
 }
 
 
-// Event内部関数
+// Event internal function
 
 void TMainDlg::SetPathHistory(SetHistMode mode, UINT item)
 {

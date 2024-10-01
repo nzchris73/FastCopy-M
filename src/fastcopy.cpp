@@ -260,7 +260,7 @@ BOOL FastCopy::InitDstPath(void)
 
 	if ((attr = ::GetFileAttributesW(dst)) == 0xffffffff) {
 		info.overWrite = BY_ALWAYS;	// dst does not exist, so no need to investigate
-//		if (isListing) PutList(dst, PL_DIRECTORY);
+		// if (isListing) PutList(dst, PL_DIRECTORY);
 	}
 	if (!IsDir(attr)) {	// Exceptionally treat reparse point as dir
 		return	ConfirmErr(L"Not a directory", dst, CEF_STOP|CEF_NOAPI), FALSE;
@@ -1012,7 +1012,7 @@ BOOL DisableLocalBuffering(HANDLE hFile)
 {
 	if (!pZwFsControlFile) return FALSE;
 
-//	DBG("DisableLocalBuffering=%llx\n", hFile);
+	// DBG("DisableLocalBuffering=%llx\n", hFile);
 
 	IO_STATUS_BLOCK ib ={};
 	return !::pZwFsControlFile(hFile, 0, 0, 0, &ib, IOCTL_LMR_DISABLE_LOCAL_BUFFERING, 0, 0, 0, 0);
@@ -1062,7 +1062,7 @@ BOOL FastCopy::MakeDigest(WCHAR *path, DigestBuf *dbuf, FileStat *stat)
 	}
 	memset(dbuf->val, 0, dbuf->GetDigestSize());
 
-	//DebugW(L"CreateFile(MakeDigest) %d %s\n", isExec, path);
+	// DebugW(L"CreateFile(MakeDigest) %d %s\n", isExec, path);
 
 	HANDLE	hFile = CreateFileWithRetry(path, GENERIC_READ, share, 0, OPEN_EXISTING, flg, 0, 5);
 	if (hFile == INVALID_HANDLE_VALUE) return FALSE;
@@ -1127,7 +1127,7 @@ END:
 
 void MakeVerifyStr(WCHAR *buf, BYTE *digest1, BYTE *digest2, DWORD digest_len)
 {
-	WCHAR	*p = buf + wcscpyz(buf, LoadStrW(IDS_Err_VerifySrc)); //Verify Error src:
+	WCHAR	*p = buf + wcscpyz(buf, LoadStrW(IDS_Err_VerifySrc)); // Verify Error src:
 
 	p += bin2hexstrW(digest1, digest_len, p);
 	p += wcscpyz(p, LoadStrW(IDS_Err_VerifyDst)); // dst:
@@ -1355,7 +1355,7 @@ FileStat *StatHash::Search(WCHAR *upperName, DWORD hash_val)
 }
 
 /*=========================================================================
-:  Function: RDigestThread
+   Function: RDigestThread
    Overview: RDigestThread processing
    explanation :
    Note :
@@ -1416,7 +1416,7 @@ BOOL FastCopy::RDigestThreadCore(void)
 }
 
 /*=========================================================================
-:  Function: WDigestThread
+   Function: WDigestThread
    Overview: WDigestThread processing
    explanation :
    Note :
@@ -1458,7 +1458,7 @@ BOOL FastCopy::WDigestThreadCore(void)
 				if (calc->status == DigestCalc::DONE) {
 					dstDigest.GetVal(dstDigest.val);
 				}
-//				curTotal->verifyTrans += calc->dataSize;
+				// curTotal->verifyTrans += calc->dataSize;
 				wDigestList.Lock();
 			}
 			fileID = calc->fileID;
@@ -2200,7 +2200,7 @@ void FastCopy::WaitCheck()
 	WaitCalc	*wc = (WaitCalc *)::TlsGetValue(wcIdx);
 
 	if (!wc) {
-//		Debug("not set wc\n");
+	// Debug("not set wc\n");
 		return;
 	}
 
@@ -2208,7 +2208,7 @@ void FastCopy::WaitCheck()
 		::SetThreadPriority(GetCurrentThread(),
 			waitLv ? THREAD_MODE_BACKGROUND_BEGIN : THREAD_MODE_BACKGROUND_END);
 		wc->lowPriority = (waitLv ? true : false);
-//		Debug("SetThreadPriority(%x) = %d\n", GetCurrentThreadId(), wc->lowPriority);
+	// Debug("SetThreadPriority(%x) = %d\n", GetCurrentThreadId(), wc->lowPriority);
 	}
 
 	if (waitLv <= AUTOSLOW_WAITLV) {
@@ -2241,7 +2241,7 @@ void FastCopy::WaitCheck()
 	remain = min(remain, 700);
 
 	if (remain > 0) {
-//		Debug("remain(%x)=%ld\n", GetCurrentThreadId(), remain);
+	// Debug("remain(%x)=%ld\n", GetCurrentThreadId(), remain);
 
 		auto	lastCur = cur;
 		while (remain > 0 && !isAbort) {

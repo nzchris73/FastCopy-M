@@ -19,7 +19,7 @@
 using namespace std;
 
 /*=========================================================================
-Function: DeleteThread
+   Function: DeleteThread
    Overview: DELETE_MODE processing
    explanation : 
    Note :
@@ -188,7 +188,7 @@ BOOL FastCopy::DeleteFileProc(WCHAR *path, int dir_len, WCHAR *fname, FileStat *
 				target = confirmDst;
 			}
 		}
-		//DebugW(L"DeleteFileW(DeleteFileProc) %d %s\n", isExec, target);
+		// DebugW(L"DeleteFileW(DeleteFileProc) %d %s\n", isExec, target);
 		if (ForceDeleteFileW(target, info.aclReset) == FALSE) {
 			curTotal->dErrFiles++;
 			curTotal->dErrTrans += stat->FileSize();
@@ -303,7 +303,7 @@ BOOL FastCopy::WriteRandomData(WCHAR *path, FileStat *stat, BOOL skip_hardlink)
 					| (enableBackupPriv ? FILE_FLAG_BACKUP_SEMANTICS : 0);
 	DWORD	share = FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE;
 
-	//DebugW(L"CreateFile(WriteRandomData) %d %s\n", isExec, path);
+	// DebugW(L"CreateFile(WriteRandomData) %d %s\n", isExec, path);
 
 	HANDLE	hFile = ForceCreateFileW(path, GENERIC_WRITE, share, 0, OPEN_EXISTING, flg, 0,
 		info.aclReset);	// Clearing ReadOnly attr has already been completed in the parent

@@ -95,13 +95,13 @@ struct CopyInfo {
 #define SPEED_SUSPEND	0
 
 // Missing in Richedit.h for SDK 7.0A. Delete after complete migration to SDK10
-#ifndef AURL_ENABLEURL
-#define AURL_ENABLEURL			1
-#define AURL_ENABLEEMAILADDR	2
-#define AURL_ENABLETELNO		4
-#define AURL_ENABLEEAURLS		8
-#define AURL_ENABLEDRIVELETTERS	16
-#endif
+//#ifndef AURL_ENABLEURL
+//#define AURL_ENABLEURL			1
+//#define AURL_ENABLEEMAILADDR	2
+//#define AURL_ENABLETELNO		4
+//#define AURL_ENABLEEAURLS		8
+//#define AURL_ENABLEDRIVELETTERS	16
+//#endif
 
 struct UpdateData {
 	U8str			ver;

@@ -190,7 +190,7 @@ void OutW(const WCHAR *fmt,...)
 const char *Fmt(const char *fmt,...)
 {
 	static std::atomic<DWORD>	idx;
-	static char		buf[FMT_BUF_NUM][FMT_BUF_SIZE];	// TLS使うべき…
+	static char		buf[FMT_BUF_NUM][FMT_BUF_SIZE];	// TLS should be used...
 
 	char	*p = buf[idx++ % FMT_BUF_NUM];
 
@@ -220,7 +220,7 @@ const WCHAR *FmtW(const WCHAR *fmt,...)
 
 
 /*=========================================================================
-	例外情報取得
+	Exceptional information acquisition
 =========================================================================*/
 static char *ExceptionTitle;
 static WCHAR *ExceptionDirW;
@@ -257,7 +257,7 @@ inline int reg_info_core(char *buf, const u_char *s, int size, const char *name)
 			len += sprintf(buf+len, " %02x%02x%02x%02x", s[0], s[1], s[2], s[3]);
 		}
 	}
-	if (len < 10) len += strcpyz(buf+len, " ........"); // nameしか出力がない場合
+	if (len < 10) len += strcpyz(buf+len, " ........"); // If only name is output
 
 	len += strcpyz(buf+len, "\r\n");
 	return	len;
@@ -272,7 +272,7 @@ inline int reg_info(char *buf, DWORD_PTR target, const char *name)
 	len += reg_info_core(buf+len, (const u_char *)target -  0, 32, name);
 	len += reg_info_core(buf+len, (const u_char *)target + 32, 32, "   ");
 
-	return	len < 50 ? 0 : len;	// target データがない場合は 0 に
+	return	len < 50 ? 0 : len;	// If there is no target data, set it to 0.
 }
 
 void InitExTrace(int trace_len)
@@ -622,7 +622,7 @@ LONG WINAPI Local_UnhandledExceptionFilter(struct _EXCEPTION_POINTERS *info)
 
 			::EnumProcessModules(hCur, hMod, MAX_MODULE, &modNum);
 
-			for (baseIdx=0; baseIdx < btNum; baseIdx++) {	// 例外ハンドラ関連は skip
+			for (baseIdx=0; baseIdx < btNum; baseIdx++) {	// Exception handler related stuff is skipped
 				if (backTrace[baseIdx] == (void *)info->ExceptionRecord->ExceptionAddress) break;
 			}
 			if (baseIdx == btNum) baseIdx = 0;

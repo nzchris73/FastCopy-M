@@ -371,7 +371,7 @@ void DriveMng::SetDriveMap(char *_driveMap)
 
 void DriveMng::ModifyNetRoot(WCHAR *root)
 {
-	if (netDrvMode == NET_UNC_SVRONLY) {	// サーバ名だけを切り出し
+	if (netDrvMode == NET_UNC_SVRONLY) {	// Extract only the server name
 		WCHAR *p = wcschr(root+2, '\\');
 		if (p) {
 			*p = 0;
@@ -379,7 +379,7 @@ void DriveMng::ModifyNetRoot(WCHAR *root)
 	} else if (netDrvMode == NET_UNC_COMMON) {	//
 		wcscpy(root, L"#COMMON#");
 	}
-	// NET_UNC_FULLVAL は何もしない
+	// NET_UNC_FULLVAL does nothing.
 }
 
 #include <WinIoCtl.h>
@@ -422,8 +422,8 @@ int DriveMng::SetDriveID(const WCHAR *_root)
 			return -1;
 		}
 	} else {
-		// ネットワークドライブの場合、\\server\volume\ もしくは \\server\ （設定に依存）
-		// を大文字にした文字列のハッシュ値を識別値(drvId[].data)とする
+		// For network drives, \\server\volume\ or \\server\ (depending on your configuration)
+		// The hash value of the string with "//" in uppercase is used as the identification value (drvId[].data)
 		ModifyNetRoot(root);
 		uint64	hash_id = MakeHash64(root, wcslen(root) * sizeof(WCHAR));
 		if ((idx = shareInfo->RegisterNetDrive(hash_id)) < 0) {
@@ -458,7 +458,7 @@ int DriveMng::SetDriveID(const WCHAR *_root)
 					flags |= WEBDAV;
 				}
 			}
-		} // NULL の場合、root をそのまま使う
+		} // If NULL, use root as is
 
 		::CharUpperW(root);
 		ModifyNetRoot(root);
@@ -576,7 +576,7 @@ BOOL DriveMng::IsWebDAV(const WCHAR *_root)
 	return	(drvID[idx].flags & WEBDAV) ? TRUE : FALSE;
 }
 
-// ワード単位ではなく、文字単位で折り返すための EDIT Control 用 CallBack
+// CallBack for EDIT Control to wrap by character instead of by word.
 int CALLBACK EditWordBreakProcW(WCHAR *str, int cur, int len, int action)
 {
 	switch (action) {
@@ -588,7 +588,7 @@ int CALLBACK EditWordBreakProcW(WCHAR *str, int cur, int len, int action)
 
 BOOL GetRootDirW(const WCHAR *path, WCHAR *root_dir)
 {
-	if (path[0] == '\\') {	// "\\server\volname\" 4つ目の \ を見つける
+	if (path[0] == '\\') {	// "\\server\volname\" find the fourth \
 		DWORD	ch;
 		int		backslash_cnt = 0, offset;
 
@@ -598,11 +598,11 @@ BOOL GetRootDirW(const WCHAR *path, WCHAR *root_dir)
 			}
 		}
 		memcpy(root_dir, path, offset * sizeof(WCHAR));
-		if (backslash_cnt < 4)					// 4つの \ がない場合は、末尾に \ を付与
-			root_dir[offset++] = '\\';	// （\\server\volume など）
+		if (backslash_cnt < 4)					// If there are not four \ s, add \ to the end
+			root_dir[offset++] = '\\';	// (e.g. \\server\volume)
 		root_dir[offset] = 0;	// NULL terminate
 	}
-	else {	// "C:\" 等
+	else {	// "C:\" etc.
 		memcpy(root_dir, path, 3 * sizeof(WCHAR));
 		root_dir[3] = 0;	// NULL terminate
 	}
@@ -610,7 +610,7 @@ BOOL GetRootDirW(const WCHAR *path, WCHAR *root_dir)
 }
 
 /*
-	ネットワークプレースを UNC path に変換 (src == dst 可）
+	Convert network place to UNC path (src == dst allowed)
 */
 
 BOOL NetPlaceConvertW(WCHAR *src, WCHAR *dst)
@@ -624,7 +624,7 @@ BOOL NetPlaceConvertW(WCHAR *src, WCHAR *dst)
 	DWORD	attr, attr_mask = FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_READONLY;
 
 	if ((attr = ::GetFileAttributesW(src)) == 0xffffffff || (attr & attr_mask) != attr_mask) {
-		return	FALSE;	// ディレクトリかつronly でないものは関係ない
+		return	FALSE;	// Anything that is not a directory and not only doesn't matter
 	}
 
 	if (SUCCEEDED(CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
@@ -706,7 +706,7 @@ static ACL *MyselfAcl()
 		return NULL;
 	}
 
-	DWORD	acl_size = 512; // 手抜き
+	DWORD	acl_size = 512; // Cutting corners
 	ACL		*acl = (ACL *)malloc(acl_size);
 
 	::InitializeAcl(acl, acl_size, ACL_REVISION);
@@ -890,7 +890,7 @@ HANDLE ForceCreateFileW(const WCHAR *path, DWORD mode, DWORD share, SECURITY_ATT
 	}
 	if (flags & FMF_ATTR) {
 		flags &= ~FMF_ATTR;
-		::SetFileAttributesW(path, FILE_ATTRIBUTE_NORMAL); // DIRの場合も ronlyは消える
+		::SetFileAttributesW(path, FILE_ATTRIBUTE_NORMAL); // Ronly disappears even in the case of DIR
 		fh = ::CreateFileW(path, mode, share, sa, cr_mode, cr_flg, hTempl);
 		if (fh != INVALID_HANDLE_VALUE) {
 			return fh;
@@ -1120,8 +1120,8 @@ ssize_t comma_double(char *s, double val, int precision)
 
 void ShowHelp(const WCHAR *dir, const WCHAR *file, const WCHAR *section)
 {
-	//从help_file中发现“http”字符，打开URL
-	//Found "http" in help_file string, open web URL.
+	// Find the "http" character from help_file and open the URL
+	// Found "http" in help_file string, open web URL.
 	if (wcsstr(file, L"http")) {
 		WCHAR	path[MAX_PATH];
 

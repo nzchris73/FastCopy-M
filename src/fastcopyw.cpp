@@ -19,10 +19,10 @@
 using namespace std;
 
 /*=========================================================================
-  関  数 ： WriteThread
-  概  要 ： Write 処理
-  説  明 ： 
-  注  意 ： 
+  Function: WriteThread
+  Overview: Write processing
+  Explanation:
+  Note: 
 =========================================================================*/
 unsigned WINAPI FastCopy::WriteThread(void *fastCopyObj)
 {
@@ -106,7 +106,7 @@ BOOL FastCopy::WriteProc(int dir_len)
 			break;
 		}
 		if (writeReq->cmd == CHECKCREATE_TOPDIR) {
-			// トップレベルディレクトリが存在しない場合は作成
+			// If the top-level directory does not exist, create it.
 			CheckAndCreateDestDir(dstBaseLen);
 		}
 		else if (writeReq->cmd == WRITE_FILE || writeReq->cmd == WRITE_BACKUP_FILE
@@ -234,23 +234,23 @@ BOOL FastCopy::WriteDirProc(int dir_len)
 	wcscpy(dst + new_dir_len, L"\\");
 
 	if (!is_reparse) {
-		if ((ret = WriteProc(new_dir_len + 1)), isAbort) {	// 再帰
+		if ((ret = WriteProc(new_dir_len + 1)), isAbort) {	// Recursion
 			goto END;
 		}
 	}
 
-	dst[new_dir_len] = 0;	// 末尾の '\\' を取る
+	dst[new_dir_len] = 0;	// Remove the trailing '\\'
 
 	if (ret && sv_stat.isCaseChanged) CaseAlignProc();
 
-	// タイムスタンプ/ACL/属性/リパースポイントのセット
+	// Set timestamps/ACLs/attributes/reparse points
 	if (!isExec || (ret = SetDirExtData(&sv_stat))) {
 		if (isListing && is_reparse && is_mkdir) {
 			PutList(dst + dstPrefixLen, PL_DIRECTORY|PL_REPARSE, 0, sv_stat.WriteTime());
 		}
 	}
 	else if (is_reparse && is_mkdir) {
-		// 新規作成dirのリパースポイント化に失敗した場合は、dir削除
+		// If the newly created dir fails to become a reparse point, delete the dir.
 		ForceRemoveDirectoryW(dst, info.aclReset|FMF_ATTR);
 	}
 
@@ -272,7 +272,7 @@ BOOL FastCopy::SetDirExtData(FileStat *stat)
 	DWORD	share = FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE;
 	DWORD	flg = FILE_FLAG_BACKUP_SEMANTICS|(is_reparse ? FILE_FLAG_OPEN_REPARSE_POINT : 0);
 
-	//DebugW(L"CreateFile(SetDirExtData) %d %s\n", isExec, dst);
+	// DebugW(L"CreateFile(SetDirExtData) %d %s\n", isExec, dst);
 
 	fh = ForceCreateFileW(dst, mode, share, 0, OPEN_EXISTING, flg, 0, info.aclReset|FMF_ATTR);
 	if (fh == INVALID_HANDLE_VALUE) {
@@ -303,7 +303,7 @@ BOOL FastCopy::SetDirExtData(FileStat *stat)
 				goto END;
 			}
 		}
-		ret = TRUE; // リパースポイント作成が成功した場合は ACL成功の有無は問わない
+		ret = TRUE; // If the reparse point creation is successful, it doesn't matter if the ACL is successful or not.
 	}
 
 	if ((stat->acl && stat->aclSize) && (mode & WRITE_OWNER)) {
@@ -335,7 +335,7 @@ HANDLE FastCopy::CreateFileWithRetry(WCHAR *path, DWORD mode, DWORD share,
 {
 	HANDLE	fh = INVALID_HANDLE_VALUE;
 
-	for (int i=0; i < retry_max && !isAbort; i++) {	// ウイルスチェックソフト対策
+	for (int i=0; i < retry_max && !isAbort; i++) {	// Virus check software measures
 		if ((fh = ::CreateFileW(path, mode, share, sa, cr_mode, flg, hTempl))
 				!= INVALID_HANDLE_VALUE)
 			break;
@@ -454,7 +454,7 @@ BOOL FastCopy::WriteDigestProc(int dst_len, FileStat *stat, DigestObj::Status st
 
 	BOOL is_empty_buf = digestList.RemainSize() <= digestList.MinMargin();
 	if (is_empty_buf || (info.flags & SERIAL_VERIFY_MOVE)) {
-		CheckDigests(is_empty_buf ? CD_WAIT : CD_NOWAIT); // empty なら wait
+		CheckDigests(is_empty_buf ? CD_WAIT : CD_NOWAIT); // wait if empty
 	}
 	return TRUE;
 }
@@ -477,13 +477,13 @@ BOOL FastCopy::WriteFileProcCore(HANDLE *_fh, FileStat *stat, WInfo *_wi)
 	}
 
 	if (useOvl /* && wi.cmd != WRITE_BACKUP_FILE*/) {
-		flg |= flagOvl;		// BackupWrite しないなら OVERLAPPED モードで開く
+		flg |= flagOvl;		// If you do not use BackupWrite, open in OVERLAPPED mode.
 	}
 	if (wi.is_reparse) {
 		flg |= FILE_FLAG_OPEN_REPARSE_POINT;
 	}
 
-	//DebugW(L"CreateFile(WriteFileProcCore) %d %s\n", isExec, dst);
+	// DebugW(L"CreateFile(WriteFileProcCore) %d %s\n", isExec, dst);
 	fh = ForceCreateFileW(dst, mode, share, 0, CREATE_ALWAYS, flg, 0, FMF_ATTR);
 	if (fh == INVALID_HANDLE_VALUE) {
 		if (info.aclReset || enableAcl) {
@@ -540,14 +540,14 @@ BOOL FastCopy::WriteFileProc(int dst_len)
 	BOOL	is_require_del = (stat->isNeedDel || (info.flags & (DEL_BEFORE_CREATE
 		|((info.flags & BY_ALWAYS) ? REPARSE_AS_NORMAL : 0))) || UseHardlink()) ? TRUE : FALSE;
 
-	// writeReq の stat を待避して、それを利用する
+	// Save the stat of the writeReq and use it
 	if (wi.cmd == WRITE_BACKUP_FILE || wi.file_size > writeReq->bufSize) {
 		memcpy((stat = &sv_stat), &writeReq->stat, offsetof(FileStat, cFileName));
 	}
 	WaitCheck();
 
 	if (is_require_del) {
-		//DebugW(L"DeleteFileW(WriteFileProc) %d %s\n", isExec, dst);
+		// DebugW(L"DeleteFileW(WriteFileProc) %d %s\n", isExec, dst);
 		ForceDeleteFileW(dst, FMF_ATTR|info.aclReset);
 	}
 	if (wi.is_hardlink) {
@@ -563,14 +563,14 @@ BOOL FastCopy::WriteFileProc(int dst_len)
 		ret = WriteFileProcCore(&fh, stat, &wi);
 		if (!ret) SetErrWFileID(stat->fileID);
 	}
-	if (IsUsingDigestList() && !wi.is_stream && !isAbort) {	// digestList に error を含めて登録
+	if (IsUsingDigestList() && !wi.is_stream && !isAbort) {	// Register the error in digestList
 		if (!WriteDigestProc(dst_len, stat,
 			ret ? (wi.is_reparse ? DigestObj::PASS : DigestObj::OK) : DigestObj::NG)) {
-			ret = FALSE;	 // false になるのはABORTレベル
+			ret = FALSE;	 // False is the ABORT level.
 		}
 	}
 	if (wi.cmd == WRITE_BACKUP_FILE) {
-		/* ret = */ WriteFileBackupProc(fh, dst_len);	// ACL/EADATA/STREAM エラーは無視
+		/* ret = */ WriteFileBackupProc(fh, dst_len);	// Ignore ACL/EADATA/STREAM errors
 	}
 	if (!wi.is_hardlink) {
 		if (ret && !wi.is_stream) {
@@ -579,7 +579,7 @@ BOOL FastCopy::WriteFileProc(int dst_len)
 		}
 		::CloseHandle(fh);
 
-		if (IsWebDAV(dstFsType)) {	// WebDAV は CloseHandle後に SetFileTime しないと反映されない
+		if (IsWebDAV(dstFsType)) {	// WebDAV will not be reflected unless SetFileTime is called after CloseHandle
 			fh = CreateFileW(dst, GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
 			::SetFileTime(fh, &stat->ftCreationTime, &stat->ftLastAccessTime,
 					&stat->ftLastWriteTime);
@@ -602,9 +602,9 @@ BOOL FastCopy::WriteFileProc(int dst_len)
 	else {
 		SetTotalErrInfo(wi.is_stream, wi.file_size, TRUE);
 		SetErrWFileID(stat->fileID);
-		if (!wi.is_stream && // fh が無効かつERROR_NO_SYSTEM_RESOURCESはネットワーク作成後エラー
+		if (!wi.is_stream && // fh is invalid and ERROR_NO_SYSTEM_RESOURCES is an error after creating the network
 			(fh != INVALID_HANDLE_VALUE || ::GetLastError() == ERROR_NO_SYSTEM_RESOURCES)) {
-			//DebugW(L"DeleteFileW(WriteFileProc) %d %s\n", isExec, dst);
+			// DebugW(L"DeleteFileW(WriteFileProc) %d %s\n", isExec, dst);
 			ForceDeleteFileW(dst, FMF_ATTR|info.aclReset);
 		}
 	}
@@ -637,10 +637,10 @@ BOOL FastCopy::WriteFileCore(HANDLE fh, FileStat *stat, WInfo *_wi, DWORD mode, 
 	}
 	if (is_reopen) {
 		flg &= ~FILE_FLAG_NO_BUFFERING;
-		//DebugW(L"CreateFile(WriteFileCore) %d %s\n", isExec, dst);
+		// DebugW(L"CreateFile(WriteFileCore) %d %s\n", isExec, dst);
 		fh2 = ::CreateFileW(dst, mode, share, 0, OPEN_EXISTING, flg, 0);
 	}
-	if (file_size > writeReq->readSize) {	// ファイルブロックをなるべく連続確保する
+	if (file_size > writeReq->readSize) {	// Allocate file blocks as contiguous as possible
 		int64	alloc_size = wi.is_nonbuf ? ALIGN_SIZE(file_size, dstSectorSize) : file_size;
 		LONG	high_size = (LONG)(alloc_size >> 32);
 
@@ -699,7 +699,7 @@ BOOL FastCopy::WriteFileCore(HANDLE fh, FileStat *stat, WInfo *_wi, DWORD mode, 
 			}
 		}
 		if (!ret || isAbort) break;
-		if (total_size < file_size) {	// 続きがある
+		if (total_size < file_size) {	// More to come
 			if (!RecvRequest(INT_RDC(wOvl.TopObj(USED_LIST)), is_empty_ovl)
 			|| writeReq->cmd != WRITE_FILE_CONT) {
 				ret = FALSE;
@@ -711,12 +711,12 @@ BOOL FastCopy::WriteFileCore(HANDLE fh, FileStat *stat, WInfo *_wi, DWORD mode, 
 				break;
 			}
 		} else {
-			curTotal->writeTrans -= (total_size - file_size); // truncate予定分を引く
+			curTotal->writeTrans -= (total_size - file_size); // Subtract the amount to be truncated
 			break;
 		}
 	}
 	if (ret && is_reopen && fh2 == INVALID_HANDLE_VALUE) {
-		//DebugW(L"CreateFile(WriteFileCore2) %d %s\n", isExec, dst);
+		// DebugW(L"CreateFile(WriteFileCore2) %d %s\n", isExec, dst);
 		fh2 = CreateFileWithRetry(dst, mode, share, 0, OPEN_EXISTING, flg, 0, 10);
 		if (fh2 == INVALID_HANDLE_VALUE && ::GetLastError() != ERROR_SHARING_VIOLATION) {
 			mode &= ~(WRITE_OWNER|WRITE_DAC|acsSysSec);
@@ -780,7 +780,7 @@ BOOL FastCopy::WriteFileBackupProc(HANDLE fh, int dst_len)
 			is_continue = FALSE;
 			break;
 
-		case WRITE_FILE_CONT:	// エラー時のみ
+		case WRITE_FILE_CONT:	// Only on error
 			break;
 
 		case WRITE_ABORT:
@@ -841,8 +841,8 @@ BOOL FastCopy::CheckDigests(CheckDigestMode mode)
 }
 
 // RecvRequest()
-//  keepCur:   現在発行中の writeReq を writeWaitList に移動して解放を延期する
-//  なお、keepCur==FALSE の場合、滞留writeWaitListがあれば全開放する
+// keepCur: Moves the currently issued writeReq to writeWaitList and postpones its release.
+// Note that if keepCur==FALSE, any pending writeWaitLists will be released in their entirety.
 BOOL FastCopy::RecvRequest(BOOL keepCur, BOOL freeLast)
 {
 	cv.Lock();
@@ -894,7 +894,7 @@ void FastCopy::WriteReqDone(ReqHead *req)
 {
 	freeOffset = (BYTE *)req + req->reqSize;
 	if (freeOffset == usedOffset) {
-//		Debug("reached\n");
+	// Debug("reached\n");
 		usedOffset = freeOffset = mainBuf.Buf();
 	}
 

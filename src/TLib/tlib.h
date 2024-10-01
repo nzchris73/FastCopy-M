@@ -98,7 +98,7 @@ extern OSVERSIONINFOEX	TOSVerInfo;	// define in tmisc.cpp
 #define IsWin8()		(TOSVerInfo.dwMajorVersion >= 7 || TOSVerInfo.dwMajorVersion == 6 \
 							&& TOSVerInfo.dwMinorVersion >= 2)
 
-/* manifest に supported OS の記述が必須 */
+/* The manifest must include the supported OS */
 #define IsWin81()		(TOSVerInfo.dwMajorVersion >= 7 || TOSVerInfo.dwMajorVersion == 6 \
 							&& TOSVerInfo.dwMinorVersion >= 3)
 

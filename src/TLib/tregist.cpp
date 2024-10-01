@@ -177,7 +177,7 @@ BOOL TRegistry::GetLongW(const WCHAR *subKey, long *val)
 			== ERROR_SUCCESS) {
 		return	TRUE;
 	}
-// 昔の互換性用
+// For backward compatibility
 	WCHAR	wbuf[100];
 	long	size_byte = sizeof(wbuf);
 
@@ -349,8 +349,8 @@ BOOL TRegistry::EnumValueW(DWORD cnt, WCHAR *buf, int size, DWORD *type)
 }
 
 /*
-	subKey を指定した場合は subkey を含むキー以下を削除
-	subkey が NULL の場合、カレント の配下を削除
+	If subKey is specified, the key including the subkey will be deleted.
+	If subkey is NULL, the current subkey is deleted.
 */
 BOOL TRegistry::DeleteChildTree(LPCSTR subKey)
 {
