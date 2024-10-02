@@ -102,7 +102,7 @@ DWORD DbgLogW(WCHAR *fmt,...)
 // from utility.cpp in fastcopy main
 BOOL GetRootDirW(const WCHAR *path, WCHAR *root_dir)
 {
-	if (path[0] == '\\') {	// "\\server\volname\" find the fourth \
+	if (path[0] == '\\') {	// "\\server\volname\" find the fourth "\"
 		DWORD	ch;
 		int		backslash_cnt = 0, offset;
 
@@ -113,7 +113,7 @@ BOOL GetRootDirW(const WCHAR *path, WCHAR *root_dir)
 		}
 		memcpy(root_dir, path, offset * sizeof(WCHAR));
 		if (backslash_cnt < 4)					// If there are not four \ s, add \ to the end
-			root_dir[offset++] = '\\';	// （\\server\volume など）
+			root_dir[offset++] = '\\';	// （\\server\volume)
 		root_dir[offset] = 0;	// NULL terminate
 	}
 	else {	// "C:\" etc.

@@ -588,7 +588,7 @@ int CALLBACK EditWordBreakProcW(WCHAR *str, int cur, int len, int action)
 
 BOOL GetRootDirW(const WCHAR *path, WCHAR *root_dir)
 {
-	if (path[0] == '\\') {	// "\\server\volname\" find the fourth \
+	if (path[0] == '\\') {	// "\\server\volname\" find the fourth "\"
 		DWORD	ch;
 		int		backslash_cnt = 0, offset;
 
