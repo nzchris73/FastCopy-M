@@ -1157,6 +1157,9 @@ BOOL TMainDlg::ExecCopy(DWORD exec_flags)
 			case Cfg::SHA256:
 				info.verifyFlags |= FastCopy::VERIFY_SHA256;
 				break;
+			case Cfg::SHA512:
+				info.verifyFlags |= FastCopy::VERIFY_SHA512;
+				break;
 			case Cfg::XXHASH:
 				info.verifyFlags |= FastCopy::VERIFY_XXHASH;
 				break;

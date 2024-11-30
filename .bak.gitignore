@@ -46,3 +46,6 @@
 *.fw.png
 /vendor
 /external/openssl1
+/external/zlib1
+/Source Backup
+

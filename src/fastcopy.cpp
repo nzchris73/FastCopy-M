@@ -789,7 +789,8 @@ BOOL FastCopy::AllocBuf(void)
 		TDigest::Type	hashType =
 			(info.verifyFlags & VERIFY_MD5)    ? TDigest::MD5    :
 			(info.verifyFlags & VERIFY_SHA1)   ? TDigest::SHA1   :
-			(info.verifyFlags & VERIFY_SHA256) ? TDigest::SHA256 : TDigest::XXHASH;
+			(info.verifyFlags & VERIFY_SHA256) ? TDigest::SHA256 :
+			(info.verifyFlags & VERIFY_SHA512) ? TDigest::SHA512 : TDigest::XXHASH;
 
 		if (!srcDigest.Init(hashType) || !dstDigest.Init(hashType)) {
 			return	ConfirmErr(L"Can't intialize hash", NULL, CEF_STOP), FALSE;

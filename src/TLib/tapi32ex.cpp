@@ -112,7 +112,8 @@ BOOL TDigest::Init(TDigest::Type _type)
 	}
 
 	return	::CryptCreateHash(hProv, type == MD5 ? CALG_MD5 :
-		type == SHA256 ? CALG_SHA_256 : CALG_SHA, 0, 0, &hHash);
+		type == SHA256 ? CALG_SHA_256 : type == SHA512 ? CALG_SHA_512 :
+		CALG_SHA, 0, 0, &hHash);
 }
 
 BOOL TDigest::Reset()
@@ -184,6 +185,10 @@ void TDigest::GetEmptyVal(void *data)
 						"\xaf\xd8\x07\x09"
 #define EMPTY_SHA256	"\xe3\xb0\xc4\x42\x98\xfc\x1c\x14\x9a\xfb\xf4\xc8\x99\x6f\xb9\x24" \
 						"\x27\xae\x41\xe4\x64\x9b\x93\x4c\xa4\x95\x99\x1b\x78\x52\xb8\x55"
+#define EMPTY_SHA512	"\xcf\x83\xe1\x35\x7e\xef\xb8\xbd\xf1\x54\x28\x50\xd6\x6d\x80\x07" \
+						"\xd6\x20\xe4\x05\x0b\x57\x15\xdc\x83\xf4\xa9\x21\xd3\x6c\xe9\xce" \
+						"\x47\xd0\xd1\x3c\x5d\x85\xf2\xb0\xff\x83\x18\xd2\x87\x7e\xec\x2f" \
+						"\x63\xb9\x31\xbd\x47\x41\x7a\x81\xa5\x38\x32\x7a\xf9\x27\xda\x3e"
 #ifdef USE_XXHASH
 #define EMPTY_XXHASH	"\xef\x46\xdb\x37\x51\xd8\xe9\x99"
 #endif
@@ -199,6 +204,10 @@ void TDigest::GetEmptyVal(void *data)
 
 	case SHA256:
 		memcpy(data, EMPTY_SHA256, SHA256_SIZE);
+		break;
+
+	case SHA512:
+		memcpy(data, EMPTY_SHA512, SHA512_SIZE);
 		break;
 
 #ifdef USE_XXHASH

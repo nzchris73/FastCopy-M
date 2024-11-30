@@ -204,12 +204,15 @@ BOOL TSetupSheet::SetData()
 		SendDlgItemMessage(HASH_COMBO, CB_ADDSTRING, 0, (LPARAM)"MD5");
 		SendDlgItemMessage(HASH_COMBO, CB_ADDSTRING, 0, (LPARAM)"SHA-1");
 		SendDlgItemMessage(HASH_COMBO, CB_ADDSTRING, 0, (LPARAM)"SHA-256");
+		SendDlgItemMessage(HASH_COMBO, CB_ADDSTRING, 0, (LPARAM)"SHA-512");
 		SendDlgItemMessage(HASH_COMBO, CB_ADDSTRING, 0, (LPARAM)"xxHash");
 		//SendDlgItemMessage(HASH_COMBO, CB_ADDSTRING, 0, (LPARAM)"xxHash3(128bit)");
 		SendDlgItemMessage(HASH_COMBO, CB_SETCURSEL,
-			cfg->hashMode <= Cfg::SHA256 ? int(cfg->hashMode) : 3, 0);
+			/* Changed cfg from SHA256 to SHA512 and hashMode from 3 to 4 to enable SHA512 */
+			cfg->hashMode <= Cfg::SHA512 ? int(cfg->hashMode) : 4, 0);
 		CheckDlgButton(VERIFYREMOVE_CHK, cfg->verifyRemove);
-//		CheckDlgButton(VERIFYINFO_CHK, cfg->verifyInfo);
+		/* Enable below to test */
+		CheckDlgButton(VERIFYINFO_CHK, cfg->verifyInfo);
 	}
 	else if (resId == DEL_SHEET) {
 		CheckDlgButton(NSA_CHECK, cfg->enableNSA);
@@ -362,7 +365,7 @@ BOOL TSetupSheet::GetData()
 		cfg->dlsvtMode = (int)SendDlgItemMessage(DLSVT_CMB, CB_GETCURSEL, 0, 0);
 
 		int val = (int)SendDlgItemMessage(HASH_COMBO, CB_GETCURSEL, 0, 0);
-		cfg->hashMode = (val <= 2) ? (Cfg::HashMode)val : Cfg::XXHASH;
+		cfg->hashMode = (val <= 3) ? (Cfg::HashMode)val : Cfg::XXHASH;
 		cfg->verifyRemove = IsDlgButtonChecked(VERIFYREMOVE_CHK);
 //		cfg->verifyInfo = IsDlgButtonChecked(VERIFYINFO_CHK);
 	}

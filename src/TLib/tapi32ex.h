@@ -124,6 +124,7 @@ u_int  MakeHash(const void *data, size_t size, u_int iv=0);
 uint64 MakeHash64(const void *data, size_t size, uint64 iv=0);
 
 
+#define SHA512_SIZE   64
 #define SHA256_SIZE   32
 #define SHA1_SIZE     20
 #define MD5_SIZE      16
@@ -138,7 +139,7 @@ protected:
 	void			*xxHashState;
 
 public:
-	enum Type { SHA1, MD5, SHA256, XXHASH } type;
+	enum Type { SHA1, MD5, SHA256, SHA512, XXHASH } type;
 
 	TDigest();
 	~TDigest();
@@ -149,7 +150,8 @@ public:
 	BOOL GetRevVal(void *data);
 	int  GetDigestSize() { return	type == MD5    ? MD5_SIZE    :
 									type == SHA1   ? SHA1_SIZE   :
-									type == SHA256 ? SHA256_SIZE : XXHASH_SIZE;
+									type == SHA256 ? SHA256_SIZE :
+									type == SHA512 ? SHA512_SIZE : XXHASH_SIZE;
 									}
 	void GetEmptyVal(void *data);
 	BOOL HMac(void *key, DWORD klen, void *src, DWORD slen, void *hmac);
@@ -157,7 +159,8 @@ public:
 		return	type == XXHASH ? "xxHash" :
 				type == MD5    ? "md5" :
 				type == SHA1   ? "sha1" :
-				type == SHA256 ? "sha256" : "none";
+				type == SHA256 ? "sha256" :
+				type == SHA512 ? "sha512" : "none";
 	}
 };
 

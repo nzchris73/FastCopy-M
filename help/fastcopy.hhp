@@ -7,6 +7,7 @@ Default Window=Main
 Default topic=FastCopy_eng.htm
 Display compile progress=No
 Full-text search=Yes
+Index file=C:\Users\chris\Documents\GitHub\FastCopy-M\help\fastcopy.hhk
 Language=0x409 English (United States)
 Title=FastCopy Help
 
