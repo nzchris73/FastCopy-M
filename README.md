@@ -25,10 +25,10 @@ FastCopy Chinesization and modify to support other language more overall, add la
 Support use http url to replace "chm" help files, change "IDS_FASTCOPYHELP" in resource to your URL.  
 ![URL help](http://ww4.sinaimg.cn/large/6c84b2d6gw1ewbd1y0bygj20rw0le4bq.jpg)
 ## How to Build | 
-FastCopy-M used [VS2017](https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx) with v141 tools.
+FastCopy-M used [VS2022](https://www.visualstudio.com/en-us/downloads/download-visual-studio-vs.aspx) with v143 tools.
 
 ### Auto zip release | 
-1. Use VS2017 to build 32-bit and 64-bit release for FastCopy projects.
+1. Use VS2022 to build 32-bit and 64-bit release for FastCopy projects.
 1. Create a `vendor` folder in the code root directory and place the `hhc.exe`, `hha.dll`([HTML Help Workshop](https://docs.microsoft.com/zh-cn/previous-versions/windows/desktop/htmlhelp/microsoft-html-help-downloads)) and `7z.exe`([7-Zip](https://sparanoid.com/lab/7z/)) three files in.
 1. `AutoZipRelease.vbs`。  
 Execute `AutoZipRelease.vbs`.
