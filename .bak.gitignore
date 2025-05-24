@@ -49,6 +49,4 @@
 /external/zlib1
 /Source Backup
 /external/openssl/debug
-*.bak
-*.cpp1
 

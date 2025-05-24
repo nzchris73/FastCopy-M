@@ -40,9 +40,9 @@
  *
  * Optional add-on.
  *
- * **Compile this file with the default flags for your target.** Do not compile
- * with flags like `-mavx*`, `-march=native`, or `/arch:AVX*`, there will be
- * an error. See @ref XXH_X86DISPATCH_ALLOW_AVX for details.
+ * **Compile this file with the default flags for your target.**
+ * Note that compiling with flags like `-mavx*`, `-march=native`, or `/arch:AVX*`
+ * will make the resulting binary incompatible with cpus not supporting the requested instruction set.
  *
  * @defgroup dispatch x86 Dispatcher
  * @{
@@ -69,34 +69,6 @@ extern "C" {
 #  endif
 #endif
 /*! @endcond */
-
-/*!
- * @def XXH_X86DISPATCH_ALLOW_AVX
- * @brief Disables the AVX sanity check.
- *
- * xxh_x86dispatch.c is intended to be compiled for the minimum target, and
- * it selectively enables SSE2, AVX2, and AVX512 when it is needed.
- *
- * Compiling with options like `-mavx*`, `-march=native`, or `/arch:AVX*`
- * _globally_ will always enable this feature, and therefore makes it
- * undefined behavior to execute on any CPU without said feature.
- *
- * Even if the source code isn't directly using AVX intrinsics in a function,
- * the compiler can still generate AVX code from autovectorization and by
- * "upgrading" SSE2 intrinsics to use the VEX prefixes (a.k.a. AVX128).
- *
- * Define XXH_X86DISPATCH_ALLOW_AVX to ignore this check,
- * thus accepting that the produced binary will not work correctly
- * on any CPU with less features than the ones stated at compilation time.
- */
-#ifdef XXH_DOXYGEN
-#  define XXH_X86DISPATCH_ALLOW_AVX
-#endif
-
-#if defined(__AVX__) && !defined(XXH_X86DISPATCH_ALLOW_AVX)
-#  error "Error: if xxh_x86dispatch.c is compiled with AVX enabled, the resulting binary will crash on sse2-only cpus !! " \
-         "If you nonetheless want to do that, please enable the XXH_X86DISPATCH_ALLOW_AVX build variable"
-#endif
 
 /*!
  * @def XXH_DISPATCH_SCALAR
@@ -368,7 +340,7 @@ static xxh_u64 XXH_xgetbv(void)
  * @return The best @ref XXH_VECTOR implementation.
  * @see XXH_VECTOR_TYPES
  */
-static int XXH_featureTest(void)
+int XXH_featureTest(void)
 {
     xxh_u32 abcd[4];
     xxh_u32 max_leaves;
@@ -660,7 +632,7 @@ typedef XXH128_hash_t (*XXH3_dispatchx86_hashLong128_default)(XXH_NOESCAPE const
 
 typedef XXH128_hash_t (*XXH3_dispatchx86_hashLong128_withSeed)(XXH_NOESCAPE const void* XXH_RESTRICT, size_t, XXH64_hash_t);
 
-typedef XXH128_hash_t (*XXH3_dispatchx86_hashLong128_withSecret)(XXH_NOESCAPE const void* XXH_RESTRICT, size_t, const void* XXH_RESTRICT, size_t);
+typedef XXH128_hash_t (*XXH3_dispatchx86_hashLong128_withSecret)(XXH_NOESCAPE const void* XXH_RESTRICT, size_t, XXH_NOESCAPE const void* XXH_RESTRICT, size_t);
 
 typedef struct {
     XXH3_dispatchx86_hashLong128_default    hashLong128_default;

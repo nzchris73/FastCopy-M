@@ -13,6 +13,8 @@
 #    make install prefix=$HOME
 
 CC=cc
+GCOV=GCOV
+LLVM_GCOV_FLAG=LLMV_GCOV_FLAG
 
 CFLAGS=-O
 #CFLAGS=-O -DMAX_WBITS=14 -DMAX_MEM_LEVEL=7
@@ -113,15 +115,19 @@ test64: all64
 	@rm -f tmp64_$$
 
 infcover.o: $(SRCDIR)test/infcover.c $(SRCDIR)zlib.h zconf.h
-	$(CC) $(CFLAGS) $(ZINCOUT) -c -o $@ $(SRCDIR)test/infcover.c
+	$(CC) $(CFLAGS) $(ZINCOUT) -c -coverage -o $@ $(SRCDIR)test/infcover.c
 
 infcover: infcover.o libz.a
-	$(CC) $(CFLAGS) -o $@ infcover.o libz.a
+	$(CC) $(CFLAGS) -coverage -o $@ infcover.o libz.a
 
 cover: infcover
+ifdef $(GCOV)
 	rm -f *.gcda
 	${QEMU_RUN} ./infcover
-	gcov inf*.c
+	${GCOV} ${LLVM_GCOV_FLAG} inf*.c -o ./infcover.gcda
+else
+	@echo 'cover disabled as no suitable gcov was found'
+endif
 
 libz.a: $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
@@ -349,12 +355,13 @@ docs: zlib.3.pdf
 zlib.3.pdf: $(SRCDIR)zlib.3
 	groff -mandoc -f H -T ps $(SRCDIR)zlib.3 | ps2pdf - $@
 
-zconf.h.cmakein: $(SRCDIR)zconf.h.in
-	-@ TEMPFILE=zconfh_$$; \
-	echo "/#define ZCONF_H/ a\\\\\n#cmakedefine Z_PREFIX\\\\\n#cmakedefine Z_HAVE_UNISTD_H\n" >> $$TEMPFILE &&\
-	sed -f $$TEMPFILE $(SRCDIR)zconf.h.in > $@ &&\
-	touch -r $(SRCDIR)zconf.h.in $@ &&\
-	rm $$TEMPFILE
+# zconf.h.cmakein: $(SRCDIR)zconf.h.in
+# 	-@ TEMPFILE=zconfh_$$; \
+# 	echo "/#define ZCONF_H/ a\\\\\n#cmakedefine Z_PREFIX\\\\\n#cmakedefine Z_HAVE_UNISTD_H\n" >> $$TEMPFILE &&\
+# 	sed -f $$TEMPFILE $(SRCDIR)zconf.h.in > $@ &&\
+# 	touch -r $(SRCDIR)zconf.h.in $@ &&\
+# 	rm $$TEMPFILE
+# 
 
 zconf: $(SRCDIR)zconf.h.in
 	cp -p $(SRCDIR)zconf.h.in zconf.h
@@ -378,7 +385,7 @@ clean: minizip-clean
 	rm -f contrib/infback9/*.gcda contrib/infback9/*.gcno contrib/infback9/*.gcov
 
 maintainer-clean: distclean
-distclean: clean zconf zconf.h.cmakein
+distclean: clean zconf # zconf.h.cmakein
 	rm -f Makefile zlib.pc configure.log
 	-@rm -f .DS_Store
 	@if [ -f Makefile.in ]; then \

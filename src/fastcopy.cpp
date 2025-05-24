@@ -982,6 +982,7 @@ BOOL FastCopy::PutList(WCHAR *path, DWORD opt, DWORD lastErr, int64 wtime, int64
 						(len == MD5_SIZE)    ? L"md5="    :
 						(len == SHA1_SIZE)   ? L"sha1="   :
 						(len == SHA256_SIZE) ? L"sha256=" :
+						(len == SHA512_SIZE) ? L"sha512=" :
 						(len == XXHASH_SIZE) ? L"xxhash=" : L"none");
 					p += bin2hexstrW(digest, len, p);
 				}

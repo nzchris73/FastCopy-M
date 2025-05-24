@@ -116,6 +116,9 @@
 #define VERIFY_REMOVE_KEY		"verifyRemove"
 #define VERIFY_INFO_KEY			"verifyInfo"
 #define NO_SACL_KEY				"no_sacl"
+#define FILELOGLIMIT_KEY		"filelog_limit"
+#define FILELOGLIMNUM_KEY		"filelog_limnum"
+#define FILELOGFLIMCHK_KEY		"fileloglim_chk"
 
 #define NONBUFMINSIZENTFS_KEY	"nonbuf_minsize_ntfs2"
 #define NONBUFMINSIZEFAT_KEY	"nonbuf_minsize_fat"

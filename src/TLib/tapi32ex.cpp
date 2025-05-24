@@ -17,6 +17,7 @@
 #include <process.h>
 #include <assert.h>
 #include <random>
+#include <string.h>
 
 /* Enable SIMD */
 /* Disabling as doco says xxHash should auto select optimisations */
@@ -214,6 +215,7 @@ void TDigest::GetEmptyVal(void *data)
 	case XXHASH:
 		memcpy(data, EMPTY_XXHASH, XXHASH_SIZE);
 		break;
+
 #endif
 	}
 }
@@ -284,7 +286,7 @@ BOOL TGenRandom(void *buf, size_t len)
 }
 
 
-//#ifdef USE_XXHASH
+// #ifdef USE_XXHASH
 #if 0	// I don't use xxHash for MakeHash because the lazy hash was 10x faster
 u_int MakeHash(const void *data, size_t size, u_int iv)
 {
