@@ -1,0 +1,12 @@
+C:\Users\chris\Documents\GitHub\zlib\adler32.c;C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc17\x64\TestZlibRelease\Tmp\adler32.obj
+C:\Users\chris\Documents\GitHub\zlib\compress.c;C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc17\x64\TestZlibRelease\Tmp\compress.obj
+C:\Users\chris\Documents\GitHub\zlib\crc32.c;C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc17\x64\TestZlibRelease\Tmp\crc32.obj
+C:\Users\chris\Documents\GitHub\zlib\deflate.c;C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc17\x64\TestZlibRelease\Tmp\deflate.obj
+C:\Users\chris\Documents\GitHub\zlib\infback.c;C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc17\x64\TestZlibRelease\Tmp\infback.obj
+C:\Users\chris\Documents\GitHub\zlib\inffast.c;C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc17\x64\TestZlibRelease\Tmp\inffast.obj
+C:\Users\chris\Documents\GitHub\zlib\inflate.c;C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc17\x64\TestZlibRelease\Tmp\inflate.obj
+C:\Users\chris\Documents\GitHub\zlib\inftrees.c;C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc17\x64\TestZlibRelease\Tmp\inftrees.obj
+C:\Users\chris\Documents\GitHub\zlib\contrib\testzlib\testzlib.c;C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc17\x64\TestZlibRelease\Tmp\testzlib.obj
+C:\Users\chris\Documents\GitHub\zlib\trees.c;C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc17\x64\TestZlibRelease\Tmp\trees.obj
+C:\Users\chris\Documents\GitHub\zlib\uncompr.c;C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc17\x64\TestZlibRelease\Tmp\uncompr.obj
+C:\Users\chris\Documents\GitHub\zlib\zutil.c;C:\Users\chris\Documents\GitHub\zlib\contrib\vstudio\vc17\x64\TestZlibRelease\Tmp\zutil.obj
