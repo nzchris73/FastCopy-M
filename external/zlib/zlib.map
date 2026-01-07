@@ -11,9 +11,11 @@ ZLIB_1.2.0 {
     inflate_copyright;
     inflate_fast;
     inflate_table;
+    inflate_fixed;
     zcalloc;
     zcfree;
     z_errmsg;
+    z_once;
     gz_error;
     gz_intmax;
     _*;
@@ -102,3 +104,8 @@ ZLIB_1.2.12 {
 ZLIB_1.3.1.2 {
 	deflateUsed;
 } ZLIB_1.2.12;
+
+ZLIB_1.3.2 {
+    compressBound_z;
+	deflateBound_z;
+} ZLIB_1.3.1.2;

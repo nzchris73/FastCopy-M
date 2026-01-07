@@ -34,6 +34,7 @@
 #    define compress              z_compress
 #    define compress2             z_compress2
 #    define compressBound         z_compressBound
+#    define compressBound_z       z_compressBound_z
 #  endif
 #  define crc32                 z_crc32
 #  define crc32_combine         z_crc32_combine
@@ -44,6 +45,7 @@
 #  define crc32_z               z_crc32_z
 #  define deflate               z_deflate
 #  define deflateBound          z_deflateBound
+#  define deflateBound_z        z_deflateBound_z
 #  define deflateCopy           z_deflateCopy
 #  define deflateEnd            z_deflateEnd
 #  define deflateGetDictionary  z_deflateGetDictionary
@@ -129,6 +131,7 @@
 #  define inflate_copyright     z_inflate_copyright
 #  define inflate_fast          z_inflate_fast
 #  define inflate_table         z_inflate_table
+#  define inflate_fixed         z_inflate_fixed
 #  ifndef Z_SOLO
 #    define uncompress            z_uncompress
 #    define uncompress2           z_uncompress2

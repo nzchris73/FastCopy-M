@@ -765,8 +765,8 @@ ZEXTERN int ZEXPORT deflateTune(z_streamp strm,
    returns Z_OK on success, or Z_STREAM_ERROR for an invalid deflate stream.
  */
 
-ZEXTERN uLong ZEXPORT deflateBound(z_streamp strm,
-                                   uLong sourceLen);
+ZEXTERN uLong ZEXPORT deflateBound(z_streamp strm, uLong sourceLen);
+ZEXTERN z_size_t ZEXPORT deflateBound_z(z_streamp strm, z_size_t sourceLen);
 /*
      deflateBound() returns an upper bound on the compressed size after
    deflation of sourceLen bytes.  It must be called after deflateInit() or
@@ -778,6 +778,9 @@ ZEXTERN uLong ZEXPORT deflateBound(z_streamp strm,
    to return Z_STREAM_END.  Note that it is possible for the compressed size to
    be larger than the value returned by deflateBound() if flush options other
    than Z_FINISH or Z_NO_FLUSH are used.
+
+     delfateBound_z() is the same, but takes and returns a size_t length for
+   those systems on which a long is 32 bits.
 */
 
 ZEXTERN int ZEXPORT deflatePending(z_streamp strm,
@@ -1239,13 +1242,14 @@ ZEXTERN uLong ZEXPORT zlibCompileFlags(void);
      21: FASTEST -- deflate algorithm with only one, lowest compression level
      22,23: 0 (reserved)
 
-    The sprintf variant used by gzprintf (zero is best):
+    The sprintf variant used by gzprintf (all zeros is best):
      24: 0 = vs*, 1 = s* -- 1 means limited to 20 arguments after the format
-     25: 0 = *nprintf, 1 = *printf -- 1 means gzprintf() not secure!
+     25: 0 = *nprintf, 1 = *printf -- 1 means gzprintf() is not secure!
      26: 0 = returns value, 1 = void -- 1 means inferred string length returned
+     27: 0 = gzprintf() present, 1 = not -- 1 means gzprintf() returns an error
 
     Remainder:
-     27-31: 0 (reserved)
+     28-31: 0 (reserved)
  */
 
 #ifndef Z_SOLO
@@ -1292,10 +1296,14 @@ ZEXTERN int ZEXPORT compress2(Bytef *dest,   uLongf *destLen,
 */
 
 ZEXTERN uLong ZEXPORT compressBound(uLong sourceLen);
+ZEXTERN z_size_t ZEXPORT compressBound_z(z_size_t sourceLen);
 /*
      compressBound() returns an upper bound on the compressed size after
    compress() or compress2() on sourceLen bytes.  It would be used before a
    compress() or compress2() call to allocate the destination buffer.
+
+     compressBound_z() is the same, but takes and returns a size_t length for
+   those systems on which a long is 32 bits.
 */
 
 ZEXTERN int ZEXPORT uncompress(Bytef *dest,   uLongf *destLen,
@@ -1527,7 +1535,11 @@ ZEXTERN z_size_t ZEXPORT gzfwrite(voidpc buf, z_size_t size,
    gzwrite() instead.
 */
 
+#if defined(STDC) || defined(Z_HAVE_STDARG_H)
 ZEXTERN int ZEXPORTVA gzprintf(gzFile file, const char *format, ...);
+#else
+ZEXTERN int ZEXPORTVA gzprintf();
+#endif
 /*
      Convert, format, compress, and write the arguments (...) to file under
    control of the string format, as in fprintf.  gzprintf returns the number of
@@ -1535,11 +1547,16 @@ ZEXTERN int ZEXPORTVA gzprintf(gzFile file, const char *format, ...);
    of error.  The number of uncompressed bytes written is limited to 8191, or
    one less than the buffer size given to gzbuffer().  The caller should assure
    that this limit is not exceeded.  If it is exceeded, then gzprintf() will
-   return an error (0) with nothing written.  In this case, there may also be a
-   buffer overflow with unpredictable consequences, which is possible only if
-   zlib was compiled with the insecure functions sprintf() or vsprintf(),
-   because the secure snprintf() or vsnprintf() functions were not available.
-   This can be determined using zlibCompileFlags().
+   return an error (0) with nothing written.
+
+     In that last case, there may also be a buffer overflow with unpredictable
+   consequences, which is possible only if zlib was compiled with the insecure
+   functions sprintf() or vsprintf(), because the secure snprintf() and
+   vsnprintf() functions were not available. That would only be the case for
+   a non-ANSI C compiler. zlib may have been built without gzprintf() because
+   secure functions were not available and having gzprintf() be insecure was
+   not an option, in which case, gzprintf() returns Z_STREAM_ERROR. All of
+   these possibilities can be determined using zlibCompileFlags().
 
      If a Z_BUF_ERROR is returned, then nothing was written due to a stall on
    the non-blocking write destination.
@@ -1848,14 +1865,14 @@ ZEXTERN uLong ZEXPORT crc32_combine(uLong crc1, uLong crc2, z_off_t len2);
    seq1 and seq2 with lengths len1 and len2, CRC-32 check values were
    calculated for each, crc1 and crc2.  crc32_combine() returns the CRC-32
    check value of seq1 and seq2 concatenated, requiring only crc1, crc2, and
-   len2. len2 must be non-negative.
+   len2. len2 must be non-negative, otherwise zero is returned.
 */
 
 /*
 ZEXTERN uLong ZEXPORT crc32_combine_gen(z_off_t len2);
 
      Return the operator corresponding to length len2, to be used with
-   crc32_combine_op(). len2 must be non-negative.
+   crc32_combine_op(). len2 must be non-negative, otherwise zero is returned.
 */
 
 ZEXTERN uLong ZEXPORT crc32_combine_op(uLong crc1, uLong crc2, uLong op);
