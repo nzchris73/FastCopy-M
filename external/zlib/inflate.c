@@ -1,5 +1,5 @@
 /* inflate.c -- zlib decompression
- * Copyright (C) 1995-2025 Mark Adler
+ * Copyright (C) 1995-2026 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
@@ -197,6 +197,7 @@ int ZEXPORT inflateInit2_(z_streamp strm, int windowBits,
     state = (struct inflate_state FAR *)
             ZALLOC(strm, 1, sizeof(struct inflate_state));
     if (state == Z_NULL) return Z_MEM_ERROR;
+    zmemzero(state, sizeof(struct inflate_state));
     Tracev((stderr, "inflate: allocated\n"));
     strm->state = (struct internal_state FAR *)state;
     state->strm = strm;
@@ -737,7 +738,7 @@ int ZEXPORT inflate(z_streamp strm, int flush) {
                         state->last ? " (last)" : ""));
                 state->mode = TABLE;
                 break;
-            case 3:
+            default:
                 strm->msg = (z_const char *)"invalid block type";
                 state->mode = BAD;
             }
@@ -1338,6 +1339,7 @@ int ZEXPORT inflateCopy(z_streamp dest, z_streamp source) {
     copy = (struct inflate_state FAR *)
            ZALLOC(source, 1, sizeof(struct inflate_state));
     if (copy == Z_NULL) return Z_MEM_ERROR;
+    zmemzero(copy, sizeof(struct inflate_state));
     window = Z_NULL;
     if (state->window != Z_NULL) {
         window = (unsigned char FAR *)
@@ -1349,8 +1351,8 @@ int ZEXPORT inflateCopy(z_streamp dest, z_streamp source) {
     }
 
     /* copy state */
-    zmemcpy((voidpf)dest, (voidpf)source, sizeof(z_stream));
-    zmemcpy((voidpf)copy, (voidpf)state, sizeof(struct inflate_state));
+    zmemcpy(dest, source, sizeof(z_stream));
+    zmemcpy(copy, state, sizeof(struct inflate_state));
     copy->strm = dest;
     if (state->lencode >= state->codes &&
         state->lencode <= state->codes + ENOUGH - 1) {

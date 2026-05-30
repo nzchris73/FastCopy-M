@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.12...3.31)
 project(
     zlib
     LANGUAGES C
-    VERSION 1.4.1.1
+    VERSION 1.3.2.1
     HOMEPAGE_URL "https://zlib.net/"
     DESCRIPTION "a general-purpose lossless data-compression library")
 
@@ -22,15 +22,10 @@ set(CPACK_RESOURCE_FILE_README ${zlib_SOURCE_DIR}/README)
 option(ZLIB_BUILD_TESTING "Enable Zlib Examples as tests" ON)
 option(ZLIB_BUILD_SHARED "Enable building zlib shared library" ON)
 option(ZLIB_BUILD_STATIC "Enable building zlib static library" ON)
-option(ZLIB_BUILD_MINIZIP "Enable building libminizip contrib library" OFF)
 option(ZLIB_INSTALL "Enable installation of zlib" ON)
 option(ZLIB_PREFIX "prefix for all types and library functions, see zconf.h.in"
        OFF)
 mark_as_advanced(ZLIB_PREFIX)
-
-if(WIN32)
-    option(ZLIB_INSTALL_COMPAT_DLL "Install a copy as zlib1.dll" ON)
-endif(WIN32)
 
 get_property(IS_MULTI GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
@@ -104,7 +99,7 @@ check_include_file(unistd.h HAVE_UNISTD_H)
 if(MSVC)
     set(CMAKE_REQUIRED_FLAGS "-WX")
 else(MSVC)
-    set(CMAKE_REQUIRED_FLAGS "-WError")
+    set(CMAKE_REQUIRED_FLAGS "-Werror")
 endif(MSVC)
 
 check_c_source_compiles(
@@ -117,6 +112,16 @@ check_c_source_compiles(
 
 unset(CMAKE_COMPILE_FLAGS)
 set(ZLIB_PC ${zlib_BINARY_DIR}/zlib.pc)
+if(IS_ABSOLUTE "${CMAKE_INSTALL_INCLUDEDIR}")
+    set(pc_includedir "${CMAKE_INSTALL_INCLUDEDIR}")
+else()
+    set(pc_includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+endif()
+if(IS_ABSOLUTE "${CMAKE_INSTALL_LIBDIR}")
+    set(pc_libdir "${CMAKE_INSTALL_LIBDIR}")
+else()
+    set(pc_libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
+endif()
 configure_file(${zlib_SOURCE_DIR}/zlib.pc.cmakein ${ZLIB_PC} @ONLY)
 configure_file(${zlib_BINARY_DIR}/zconf.h.cmakein ${zlib_BINARY_DIR}/zconf.h)
 
@@ -190,8 +195,9 @@ if(ZLIB_BUILD_SHARED)
                    EXPORT_NAME ZLIB
                    OUTPUT_NAME z)
     if(UNIX
-       AND NOT APPLE
-       AND NOT (CMAKE_SYSTEM_NAME STREQUAL AIX))
+        AND NOT APPLE
+        AND NOT (CMAKE_SYSTEM_NAME STREQUAL AIX)
+        AND NOT (CMAKE_SYSTEM_NAME STREQUAL SunOS))
         # On unix-like platforms the library is almost always called libz
         set_target_properties(
             zlib
@@ -200,7 +206,8 @@ if(ZLIB_BUILD_SHARED)
     endif(
         UNIX
         AND NOT APPLE
-        AND NOT (CMAKE_SYSTEM_NAME STREQUAL AIX))
+        AND NOT (CMAKE_SYSTEM_NAME STREQUAL AIX)
+        AND NOT (CMAKE_SYSTEM_NAME STREQUAL SunOS))
 endif(ZLIB_BUILD_SHARED)
 
 if(ZLIB_BUILD_STATIC)
@@ -239,13 +246,6 @@ if(ZLIB_INSTALL)
             FILE ZLIB-shared.cmake
             NAMESPACE ZLIB::
             DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zlib)
-        if(ZLIB_INSTALL_COMPAT_DLL)
-            install(
-                FILES $<TARGET_FILE:zlib>
-                COMPONENT Runtime
-                RENAME zlib1.dll
-                DESTINATION "${CMAKE_INSTALL_BINDIR}")
-        endif(ZLIB_INSTALL_COMPAT_DLL)
 
         if(MSVC)
             install(
@@ -270,14 +270,6 @@ if(ZLIB_INSTALL)
             FILE ZLIB-static.cmake
             NAMESPACE ZLIB::
             DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zlib)
-
-        if(ZLIB_INSTALL_COMPAT_DLL AND MINGW)
-            install(
-                FILES $<TARGET_FILE:zlibstatic>
-                COMPONENT Development
-                RENAME libz.dll.a
-                DESTINATION "${CMAKE_INSTALL_LIBDIR}")
-        endif(ZLIB_INSTALL_COMPAT_DLL AND MINGW)
     endif(ZLIB_BUILD_STATIC)
 
     configure_package_config_file(
@@ -325,6 +317,4 @@ if(ZLIB_BUILD_TESTING)
     add_subdirectory(test)
 endif(ZLIB_BUILD_TESTING)
 
-if(ZLIB_BUILD_MINIZIP)
-    add_subdirectory(contrib/minizip/)
-endif(ZLIB_BUILD_MINIZIP)
+add_subdirectory(contrib)

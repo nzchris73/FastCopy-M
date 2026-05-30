@@ -51,4 +51,4 @@
 /external/openssl/debug
 *.bak
 *.cpp1
-
+/*.zip
