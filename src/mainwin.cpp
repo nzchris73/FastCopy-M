@@ -511,13 +511,13 @@ BOOL TMainDlg::SwapTargetCore(const WCHAR *s, const WCHAR *d, WCHAR *out_s, WCHA
 	if (::GetFullPathNameW(s, MAX_WPATH, out_d, &src_fname) <= 0) return	FALSE; // s to out_d
 	if (::GetFullPathNameW(d, MAX_WPATH, out_s, &dst_fname) <= 0) return	FALSE; // d to out_s
 
-	if (src_fname) {  // a:\aaa\bbb d:\ccc\ddd\ --> d:\ccc\ddd\bbb a:\aaa\
-		wcscpy(out_s + wcslen(out_s), src_fname);
+	if (src_fname) {  /* a:\aaa\bbb d : \ccc\ddd\ --> d:\ccc\ddd\bbb a : \aaa\
+		wcscpy(out_s + wcslen(out_s), src_fname); */
 		src_fname[0] = 0;
 		goto END;
 	}
-	else if (isSrcRoot) {	// a:\ d:\xxx\ -> d:\xxx a:\
-		GetRootDirW(out_s, buf.WBuf());
+	else if (isSrcRoot) {	/* a:\ d : \xxx\->d:\xxx a : \
+		GetRootDirW(out_s, buf.WBuf()); */
 		if (wcscmp(out_s, buf.WBuf()) && !isSrcRoot) {
 			out_s[wcslen(out_s) -1] = 0;
 		}

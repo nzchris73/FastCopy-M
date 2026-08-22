@@ -73,7 +73,7 @@
 </style> </head>
   <body bgcolor="#eeffff">
     <div align="center">
-      <h1 class="help_head1">FastCopy ver3.7.0.59</h1>
+      <h1 class="help_head1">FastCopy ver3.7.0.60</h1>
     </div>
     <div class="help_all">
       <div align="right">2019/02/19 H.Shirouzu and FastCopy Lab, LLC.</div>
@@ -1619,6 +1619,18 @@
                 <tr>
                   <th>Version</th>
                   <th>Detail</th>
+                </tr>
+                <tr>
+                  <td>v3.7.0.60</td>
+                  <td>Various security enhancements.<br>
+                    &nbsp; - Enabled CET Shadow Stack (/CETCOMPAT).<br>
+                    &nbsp; - Enabled address space layout randomisation
+                    (/DYNAMICBASE).<br>
+                    &nbsp; - Enabled high-entropy 64-bit address space layout
+                    randomisation (ASLR) (/HIGHENTROPYVA).<br>
+                    &nbsp; - Enabled Control Flow Guard (/guard:cf).<br>
+                    &nbsp; - Stricter DLL loading (added
+                    /DEPENDENTLOADFLAG:0x800).</td>
                 </tr>
                 <tr>
                   <td>v3.7.0.59</td>
