@@ -29,7 +29,7 @@ FastCopy-M used [VS2022](https://www.visualstudio.com/en-us/downloads/download-v
 
 ### Auto zip release | 
 1. Use VS2022 to build 32-bit and 64-bit release for FastCopy projects.
-1. Create a `vendor` folder in the code root directory and place the `hhc.exe`, `hha.dll`([HTML Help Workshop](https://docs.microsoft.com/zh-cn/previous-versions/windows/desktop/htmlhelp/microsoft-html-help-downloads)) and `7z.exe`([7-Zip](https://sparanoid.com/lab/7z/)) three files in.
+1. Create a `vendor` folder in the code root directory and place the `hhc.exe`, `hha.dll`([HTML Help Workshop](https://docs.microsoft.com/zh-cn/previous-versions/windows/desktop/htmlhelp/microsoft-html-help-downloads)) and `7z.exe`([7-Zip](https://www.7-zip.org)) three files in.
 1. `AutoZipRelease.vbs`。  
 Execute `AutoZipRelease.vbs`.
 1. A 32-bit and 64-bit two zip compression packages will be generated under the code root directory.
